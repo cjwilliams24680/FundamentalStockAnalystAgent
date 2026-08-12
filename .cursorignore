@@ -1,0 +1,17 @@
+# Dependencies and virtual environments
+.venv/
+uv.lock
+
+# Caches
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets — keep out of AI context
+.env
+.env.*
+
+# Misc
+.git/
+.DS_Store
