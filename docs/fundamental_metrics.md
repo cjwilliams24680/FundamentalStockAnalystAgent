@@ -39,6 +39,11 @@ Each metric carries:
   them, and common pitfalls. Golden rule (CFA Institute): almost all ratios are only
   meaningful **relative to industry peers and to the company's own history** — absolute
   "good ranges" are the exception, not the rule.
+- **Reference values** — where the interpretation prose lacks explicit numbers, a
+  `Reference values:` line gives rough practitioner bands for what reads as good, bad,
+  or unusual. These are heuristics for flagging, not verdicts: they are subordinate to
+  the golden rule above and to the sector notes, and "unusual" means *verify the inputs
+  and context* — not automatically bad.
 - **Sector notes** — where the metric breaks down. Two flags recur:
   - 🏦 **Financials (banks, insurers, brokers)** — file *unclassified* balance sheets
     (no current/non-current split), treat debt as raw material rather than financing,
@@ -85,6 +90,8 @@ How much profit the company squeezes from its revenue and its capital. Two famil
   an eroding gross margin is an early warning that competition or input costs are biting.
   Cross-industry comparison is nearly meaningless (software runs 70–90%, retail 20–40%);
   compare only against peers and history.
+- **Reference values:** The sector ranges above are the anchor; a negative gross
+  margin — selling below direct cost — is a severe flag at any scale.
 - **Sector notes:** 🏦 Undefined for financials (no COGS line). 🏢 Largely unused for REITs.
 - **Data difficulty:** Hard — many filers don't tag `GrossProfit` (~43% direct); derive as
   Revenue − CostOfRevenue, with COGS tags split across current and deprecated concepts.
@@ -100,6 +107,10 @@ How much profit the company squeezes from its revenue and its capital. Two famil
   capital structures. CFA guidance: operating margin improving faster than gross margin
   signals better overhead control. Pitfall: companies vary in what they classify as
   "operating" (one-off charges, stock compensation).
+- **Reference values:** Negative = the operations themselves lose money. <5% thin;
+  roughly 10–20% healthy for most industries; >20% strong (the large-cap US median
+  runs in the low-to-mid teens); >40% unusual — verify what the filer classifies as
+  operating costs.
 - **Sector notes:** 🏦 Not meaningful — interest is a bank's operating cost, so the EBIT
   concept breaks down (banks are judged on the "efficiency ratio" instead).
 - **Data difficulty:** Easy — `OperatingIncomeLoss` is tagged by ~83% of filers (banks
@@ -116,6 +127,9 @@ How much profit the company squeezes from its revenue and its capital. Two famil
   time shows *where* profitability is won or lost. Pitfall: polluted by one-off gains
   and losses and tax-rate swings — check the pretax margin and tax rate when net margin
   jumps.
+- **Reference values:** Negative = net loss. <5% thin; 5–10% about average; 10–20%
+  good; >20% excellent; >30% unusual — check for one-off gains or tax items before
+  crediting the underlying business.
 - **Sector notes:** Works for financials (needs no operating/financing split).
   🏢 Depressed for REITs by property depreciation; FFO-based margins are the substitute.
 - **Data difficulty:** Easy for the numerator (`NetIncomeLoss` ~99%); Medium overall
@@ -154,6 +168,10 @@ How much profit the company squeezes from its revenue and its capital. Two famil
   framework. Unlike ROE it can't be juiced with leverage. Pitfalls: book capital embeds
   old accounting choices (past write-offs inflate ROIC); judge the *trend* and the
   spread over WACC, not the raw level.
+- **Reference values:** Anchor to the cost of capital: typical large-cap WACC is
+  ~8–10%, so ROIC <8% is likely value-destroying, 10–15% solid, >15% strong (durable
+  competitive-advantage territory), and >40% unusual — usually book capital shrunken
+  by past write-offs rather than superhuman economics.
 - **Sector notes:** 🏦 Undefined for financials (debt is their raw material, so "invested
   capital" and EBIT don't exist in the corporate sense — use ROE). 🏢 Distorted for
   REITs by property book values.
@@ -173,6 +191,9 @@ How much profit the company squeezes from its revenue and its capital. Two famil
   it as a comps convenience, not a quality signal: depreciation is a real cost
   (Buffett's critique), and Moody's *Putting EBITDA Into Perspective* catalogs ten
   failings. A 35% EBITDA margin at a telecom is not a 35% margin at a software firm.
+- **Reference values:** Rough sector bands: >30–40% software/pharma/infrastructure;
+  15–25% typical industrials; <10% thin (though normal in distribution and retail);
+  negative = severe — the business isn't covering even its cash operating costs.
 - **Sector notes:** 🏦 Explicitly rejected for financials. 🏢 REITs use EBITDAre
   (Nareit-standardized variant).
 - **Data difficulty:** Medium — D&A tagging is split across three tag families.
@@ -187,6 +208,8 @@ How much profit the company squeezes from its revenue and its capital. Two famil
   denominator is funded by everyone — an inconsistency both CFA materials and Damodaran
   flag). Kept because it is a **bank staple**: return on average assets ~1%+ is the
   classic good-bank threshold, and it's the profitability input to Piotroski's F-Score.
+- **Reference values:** For non-financials, >5% is good and >10% excellent. Banks run
+  on a different scale entirely — return on average assets ~1%+ is the good-bank bar.
 - **Sector notes:** 🏦 One of the few return metrics that *works* for banks.
 - **Data difficulty:** Easy.
 - **Sources:** CFA Ratio List #19–20 (T1); Damodaran, *Return Measures* (T2, critically);
@@ -213,6 +236,8 @@ receivables, and payables turn over.
   strategically trade one for the other (luxury = high margin/low turnover, discount
   retail = the reverse). A low value can just mean capital intensity, not
   inefficiency — peer-relative only.
+- **Reference values:** Most non-financials fall roughly 0.5–2.0; <0.25 outside
+  utilities/real estate is unusual (idle assets or an overvalued asset base).
 - **Sector notes:** 🏦 Trivially tiny for banks (~0.03–0.1) and carries no signal there.
   Low-information for asset-light software.
 - **Data difficulty:** Easy (given the revenue fallback chain).
@@ -232,6 +257,9 @@ receivables, and payables turn over.
   than revenue is a classic channel-stuffing / aggressive-revenue-recognition red flag;
   rising DIO flags obsolescence risk.** High DPO is ambiguous — bargaining power or
   payment distress — triangulate with liquidity ratios (CFA).
+- **Reference values:** For manufacturers/retailers a CCC of roughly 30–90 days is
+  common; negative is a structural advantage. Components: DSO ~30–60 days typical,
+  >90 unusual (collection problems or channel stuffing); DPO ~30–60 days typical.
 - **Sector notes:** 🏦🏢 Undefined for financials and REITs; degenerate for no-inventory
   businesses (software, services) — display conditionally.
 - **Data difficulty:** Medium — inventory/receivables/payables tags are present for
@@ -245,6 +273,9 @@ receivables, and payables turn over.
 - **Interpretation:** Efficiency of the plant/equipment base; only meaningful for
   capital-intensive sectors. Pitfall: mechanically rises as assets depreciate — an aging
   asset base looks deceptively "efficient."
+- **Reference values:** Capital-intensive firms typically run ~1–4. A high or rising
+  value alongside flat capital spending is the aging-asset-base artifact above —
+  check capital expenditures to depreciation before crediting efficiency.
 - **Sector notes:** Noise for services, software, and financials.
 - **Data difficulty:** Easy.
 - **Sources:** CFA Ratio List #13 (T1).
@@ -254,6 +285,10 @@ receivables, and payables turn over.
 - **Formula:** Revenue ÷ Average Working Capital.
 - **Interpretation:** CFA explicitly warns it is uninterpretable when working capital is
   near zero or negative — which is common. The CCC is the better working-capital lens.
+- **Reference values:** Where defined (positive average working capital), higher =
+  leaner funding of operations; >~10 is unusually high — a thin working-capital
+  buffer or a structurally negative-working-capital model; cross-check the liquidity
+  ratios.
 - **Data difficulty:** Easy (where defined).
 - **Sources:** CFA Ratio List #12 (T1).
 
@@ -310,6 +345,9 @@ Can the company cover its obligations over the next year without raising outside
 - **Interpretation:** The worst-case/crisis measure. Most healthy firms run well below 1;
   useful mainly in distress screening. Cluster note: current > quick > cash — current
   is primary, quick is the cross-check, cash is the stress test.
+- **Reference values:** Healthy firms typically run 0.1–0.5; >1 means current
+  liabilities are fully covered by cash alone — an idle-cash hoard or a deliberate
+  war chest (read with the capital-return metrics).
 - **Sources:** CFA refresher (T1).
 
 ### Working Capital (level) — EXTENDED
@@ -326,6 +364,8 @@ Can the company cover its obligations over the next year without raising outside
   where the denominator = (operating expenses − non-cash charges) ÷ 365.
 - **Interpretation:** Days the firm can operate on liquid assets with zero revenue. In
   the CFA liquidity set but rarely screened on in practice.
+- **Reference values:** >90 days comfortable; 30–90 adequate; <30 days tight — the
+  firm depends on near-term revenue or financing to keep operating.
 - **Sources:** CFA refresher (T1).
 
 ---
@@ -391,6 +431,9 @@ liabilities, short- and long-term, plus lease obligations — **never** total li
 - **Interpretation:** Algebraic siblings of D/E, both bounded [0,1] so they stay
   well-behaved when equity is thin or negative — keep one as the robustness backup.
   Debt-to-capital is the form credit analysts prefer.
+- **Reference values:** Debt-to-capital <0.3–0.4 conservative, 0.4–0.6 moderate,
+  >0.6 aggressive for non-financials; debt-to-assets >0.5 means the asset base is
+  majority debt-funded.
 - **Sources:** CFA refresher (T1); CFA credit reading (T1-derived).
 
 ### Financial Leverage (Equity Multiplier) — EXTENDED
@@ -398,6 +441,9 @@ liabilities, short- and long-term, plus lease obligations — **never** total li
 - **Formula:** Average Total Assets ÷ Average Total Equity.
 - **Interpretation:** Assets supported per unit of equity; the leverage leg of DuPont.
   Captures *all* liabilities, not just interest-bearing debt.
+- **Reference values:** ~2–3 is typical for non-financials; >5 is high — or a
+  buyback-shrunken equity base, so check book equity before reading it as debt risk.
+  Banks structurally run ~8–15, which is why generic bands don't apply to them.
 - **Sector notes:** 🏦 **The leverage measure that stays meaningful for banks** — flag as
   the financial-sector fallback.
 - **Data difficulty:** Easy.
@@ -408,6 +454,8 @@ liabilities, short- and long-term, plus lease obligations — **never** total li
 - **Formula:** EBITDA ÷ Interest Expense.
 - **Interpretation:** The more generous coverage variant (adds back D&A).
   EBIT/interest is primary (it's what Damodaran's rating map uses).
+- **Reference values:** Runs above EBIT/interest by construction. Credit practice:
+  >6× comfortable, 2–6× intermediate, <2× stressed.
 - **Sources:** CFA credit reading (T1-derived).
 
 > **Removed in the quarterly-report audit:** Fixed-charge coverage — lease
@@ -517,6 +565,9 @@ empirical finding; growth at poor returns destroys value).
   McKinsey empirics: growth rates fade toward ~2–5% nominal over time regardless of
   industry, so extrapolating high growth is the classic error. Pitfalls: acquired vs
   organic growth conflated; FX effects invisible in the statements.
+- **Reference values:** Negative = contraction (distinguish a cyclical dip from
+  secular decline); 0–5% mature/GDP-pace; 5–15% healthy; >20% high growth; >40%
+  sustained is rare — verify it isn't acquisition-driven.
 - **Sector notes:** Universally applicable, including financials (revenue = net interest
   income + fees; rate cycles drive it). 🏢 Same-store/rental revenue more meaningful
   than the total for REITs.
@@ -537,6 +588,8 @@ empirical finding; growth at poor returns destroys value).
   distort; EPS growth driven by buybacks without operating-income growth is lower
   quality — show revenue, operating income, and EPS growth side by side to expose the
   difference.
+- **Reference values:** ~10%+ sustained is strong; >25% rarely persists (growth
+  fades); interpret only off a meaningfully positive base year.
 - **Sector notes:** Fine for financials. 🏢 Misleading for REITs — use FFO/AFFO per-share
   growth.
 - **Data difficulty:** Easy (EPS and share counts ~90%+ tagged).
@@ -550,6 +603,9 @@ empirical finding; growth at poor returns destroys value).
 - **Interpretation:** The growth fundable from retained earnings without new capital — a
   reality check on reported growth: persistent growth above SGR requires external
   financing or improving ROE. Links growth, profitability, and payout in one identity.
+- **Reference values:** Read as a comparison, not a level: actual growth persistently
+  above SGR → expect share issuance or rising leverage to fund the gap; growth well
+  below SGR with high ROE → capacity to raise dividends or buybacks.
 - **Sources:** CFA Ratio List #36–37 (T1); Damodaran (T2).
 
 ### Reinvestment-Rate Growth (Fundamental Growth) — EXTENDED
@@ -607,6 +663,10 @@ EV/EBITDA. All multiples are TTM (trailing twelve months) — see implementation
   earnings ≤ 0. Pitfalls: earnings are volatile and distortable — prefer normalized
   earnings; for cyclicals P/E is *lowest at the earnings peak* (the Molodovsky effect),
   the exact wrong moment to call it cheap.
+- **Reference values:** Long-run US market average roughly 15–20×. <10× = priced for
+  decline or deep value — verify earnings aren't at a cyclical peak; 20–30× = growth
+  premium; >50× = speculative growth pricing or a trough-earnings artifact — treat as
+  "unusual, inspect the earnings," not simply expensive.
 - **Sector notes:** Fine for financials. 🏢 Misleading for REITs — P/FFO is the standard
   substitute.
 - **Data difficulty:** Easy (+ TTM derivation).
@@ -621,6 +681,9 @@ EV/EBITDA. All multiples are TTM (trailing twelve months) — see implementation
 - **Interpretation:** Same information as P/E but **defined even when earnings are
   negative**, so it ranks the full universe — CFA explicitly recommends E/P over P/E for
   ranking. Comparable against bond yields.
+- **Reference values:** Compare against the 10-year Treasury yield: an earnings yield
+  below the risk-free rate means paying a premium justified only by expected growth.
+  EBIT/EV above ~10% is classic Greenblatt-cheap territory.
 - **Sector notes:** EBIT/EV form 🏦 inapplicable to financials.
 - **Sources:** CFA reading (T1); Greenblatt, *The Little Book That Beats the Market* (T2).
 
@@ -652,6 +715,10 @@ EV/EBITDA. All multiples are TTM (trailing twelve months) — see implementation
   Conceptual wrinkle: equity-level numerator over a firm-level denominator — **EV/Sales
   (EXTENDED) is the leverage-corrected version** CFA calls conceptually preferable; this
   doc keeps P/S core for familiarity and EV/Sales as the refinement.
+- **Reference values:** <1× cheap per revenue dollar (or a low-margin business);
+  ~1–2× typical for a mature company; >10× demands exceptional growth plus high
+  margins — always read jointly with net margin (justified P/S ≈ net margin ×
+  justified P/E).
 - **Sector notes:** 🏦 Not for financials (revenue ill-defined). Cross-sector comparison
   invalid without margin context.
 - **Data difficulty:** Medium (revenue chain + TTM).
@@ -665,6 +732,8 @@ EV/EBITDA. All multiples are TTM (trailing twelve months) — see implementation
   "more appropriate than P/E for comparing companies with different amounts of financial
   leverage"; the default in capital-intensive industries and M&A. Pitfall: EBITDA
   ignores capex, so it flatters capital-intensive firms — cross-check EV/EBIT.
+- **Reference values:** Broad market typically ~8–12×; <6× cheap (or the market is
+  pricing decline); >15× rich/growth-priced for a mature firm.
 - **Sector notes:** 🏦 **Never for financials.** 🏢 REITs use the EBITDAre variant.
 - **Data difficulty:** Hard (debt-tag fragmentation flows into EV).
 - **Sources:** CFA reading (T1); Damodaran value-multiples notes (T2); Mauboussin,
@@ -678,6 +747,8 @@ EV/EBITDA. All multiples are TTM (trailing twelve months) — see implementation
   economic cost (Damodaran, Mauboussin). Its inverse is Greenblatt's earnings yield.
   Keep both: EV/EBITDA when D&A policies differ arbitrarily, EV/EBIT when capital
   intensity differs.
+- **Reference values:** Typically ~10–14×; its inverse is the Greenblatt earnings
+  yield — EBIT/EV >10% (EV/EBIT <10×) is classic "cheap" territory.
 - **Sector notes:** 🏦 Not for financials.
 - **Sources:** CFA reading (T1); Damodaran (T2); Greenblatt (T2).
 
@@ -686,6 +757,8 @@ EV/EBITDA. All multiples are TTM (trailing twelve months) — see implementation
 - **Formula:** EV ÷ Revenue TTM.
 - **Interpretation:** The leverage-corrected P/S; use where EBITDA is negative
   (early-stage growth, distressed cyclicals). Interpret jointly with margins.
+- **Reference values:** Same shape as the P/S bands: ~1–3× typical, >10× unusual
+  (requires exceptional growth and margins); margin context is mandatory.
 - **Sources:** CFA reading (T1); Damodaran (T2).
 
 ### FCF Yield — CORE
@@ -696,6 +769,10 @@ EV/EBITDA. All multiples are TTM (trailing twelve months) — see implementation
 - **Interpretation:** Valuation on actual cash generation — "cash flow is less subject
   to manipulation than earnings" (CFA). A wide gap between FCF yield and earnings yield
   is itself an accrual-quality flag. Volatile year to year; TTM smoothing helps.
+- **Reference values:** >8% value territory (or the market doubts the cash flow's
+  durability); 4–8% reasonable; <2% expensive or a heavy-reinvestment phase — check
+  capex intensity before calling it overvalued. Compare against the 10-year Treasury
+  yield as the risk-free alternative.
 - **Sector notes:** 🏦 Meaningless for banks. 🏢 REITs: AFFO yield instead. Punishes
   firms in heavy growth-investment phases.
 - **Data difficulty:** Easy.
@@ -711,6 +788,9 @@ EV/EBITDA. All multiples are TTM (trailing twelve months) — see implementation
   unsustainable; extremely high yield usually signals an expected cut (value trap);
   payout links to growth via SGR = ROE × (1 − payout). A very low payout at a mature
   firm signals capacity to raise.
+- **Reference values:** Yield ~2–4% is typical for dividend payers; >6–8% usually
+  means the market is pricing a cut. Payout of 30–60% is the sustainable sweet spot
+  for a mature payer.
 - **Sector notes:** 🏢 REITs must pay ≥90% of taxable income — high payout is structural,
   and the denominator should be FFO, not net income. Yield is uninformative for
   no-dividend growth companies.
@@ -729,6 +809,8 @@ EV/EBITDA. All multiples are TTM (trailing twelve months) — see implementation
   return nothing. Negative shareholder yield (net issuer) is itself a documented
   negative signal. One of the few metrics *more* natural in market-cap form than
   per-share form.
+- **Reference values:** ~2–5% typical for a capital-returning firm; >5% aggressive
+  capital return; negative = net issuer (the documented negative signal above).
 - **Sources:** Boudoukh et al. 2007, *Journal of Finance* (T2); Faber, *Shareholder
   Yield* (T2/T3).
 
@@ -775,6 +857,8 @@ score 0–9.*
   book-to-market) stocks**, not the whole market. Original findings (1976–1996): high
   F-Score value stocks beat the value portfolio by ~7.5%/yr; effect strongest in small,
   neglected firms.
+- **Reference values:** 8–9 strong, 3–7 middling (no signal either way), 0–2 weak;
+  ≥7 is the common long-screen cutoff.
 - **Sector notes:** 🏦 Built for non-financials — signals 5, 6, 8 are ill-defined for
   banks; exclude financials. 🏢 Partially applicable to REITs.
 - **Sources:** Piotroski 2000 (T2); GMT Research / AAII implementations (T3).
