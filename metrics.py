@@ -229,18 +229,6 @@ def return_on_invested_capital(
     return _safe_divide(net_operating_profit_after_tax, average_invested_capital)
 
 
-def return_on_net_operating_assets(
-    after_tax_operating_income: float | None,
-    net_operating_assets: float | None,
-) -> float | None:
-    """RNOA (Penman). Caller must supply reformulated inputs: net operating
-    assets = operating assets - operating liabilities, financing items
-    excluded from both sides."""
-    if net_operating_assets is not None and net_operating_assets <= 0:
-        return None
-    return _safe_divide(after_tax_operating_income, net_operating_assets)
-
-
 # ---------------------------------------------------------------------------
 # Efficiency
 # ---------------------------------------------------------------------------
@@ -444,19 +432,6 @@ def earnings_before_interest_taxes_depreciation_and_amortization_interest_covera
     return _safe_divide(
         earnings_before_interest_taxes_depreciation_and_amortization, interest_expense
     )
-
-
-def fixed_charge_coverage(
-    earnings_before_interest_and_taxes: float | None,
-    lease_payments: float | None,
-    interest_expense: float | None,
-) -> float | None:
-    if not _present(earnings_before_interest_and_taxes, lease_payments, interest_expense):
-        return None
-    charges = interest_expense + lease_payments
-    if charges <= 0:
-        return None
-    return (earnings_before_interest_and_taxes + lease_payments) / charges
 
 
 def operating_cash_flow_to_debt(

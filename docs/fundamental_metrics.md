@@ -192,18 +192,10 @@ How much profit the company squeezes from its revenue and its capital. Two famil
 - **Sources:** CFA Ratio List #19–20 (T1); Damodaran, *Return Measures* (T2, critically);
   Piotroski 2000 (T2).
 
-### Return on Net Operating Assets (RNOA) — EXTENDED
-
-- **Formula:** After-tax Operating Income ÷ Net Operating Assets, where NOA = operating
-  assets − operating liabilities (financing items excluded from both sides).
-- **Inputs:** Reformulated IS and BS (requires an operating/financing split).
-- **Interpretation:** The centerpiece of Penman's *Financial Statement Analysis and
-  Security Valuation* — cleaner than ROA because operating liabilities (payables etc.)
-  are free financing. ROE = RNOA + leverage × (RNOA − net borrowing cost). Academically
-  best-in-class, but requires statement reformulation; ROIC is the practical stand-in.
-- **Sector notes:** 🏦 Same exclusion as ROIC.
-- **Data difficulty:** Hard (reformulation needed).
-- **Sources:** Penman (T2).
+> **Removed in the quarterly-report audit:** Return on Net Operating Assets (RNOA,
+> Penman) — its inputs require reformulating the statements into operating vs
+> financing components, which is analyst judgment rather than something scrapable
+> from a quarterly filing. ROIC is the practical stand-in.
 
 ---
 
@@ -411,14 +403,17 @@ liabilities, short- and long-term, plus lease obligations — **never** total li
 - **Data difficulty:** Easy.
 - **Sources:** CFA refresher (T1).
 
-### EBITDA/Interest & Fixed-Charge Coverage — EXTENDED
+### EBITDA/Interest Coverage — EXTENDED
 
-- **Formulas:** EBITDA ÷ Interest Expense; (EBIT + Lease Payments) ÷ (Interest + Lease
-  Payments).
-- **Interpretation:** Coverage variants — EBITDA form is more generous; fixed-charge
-  matters for lease-heavy firms (retail, airlines). EBIT/interest is primary (it's what
-  Damodaran's rating map uses).
+- **Formula:** EBITDA ÷ Interest Expense.
+- **Interpretation:** The more generous coverage variant (adds back D&A).
+  EBIT/interest is primary (it's what Damodaran's rating map uses).
 - **Sources:** CFA credit reading (T1-derived).
+
+> **Removed in the quarterly-report audit:** Fixed-charge coverage — lease
+> *payments* live in lease footnotes, not the three statements, so they can't be
+> scraped from a quarterly filing; without leases the formula collapses into plain
+> interest coverage.
 
 ### CFO/Total Debt — EXTENDED
 
@@ -832,8 +827,7 @@ Avg Assets/Avg Equity)
 - **Sector notes:** Works for all sectors including financials — but bank equity
   multipliers are structurally huge; compare within sector. Terms uninterpretable with
   negative equity or negative pretax income.
-- **Sources:** CFA L1 curriculum (T1); Penman (T2 — his RNOA-based refinement is the
-  EXTENDED version).
+- **Sources:** CFA L1 curriculum (T1); Penman (T2).
 
 ### Beneish M-Score — EXTENDED
 
@@ -871,7 +865,6 @@ financials, 🏢 = caveat for REITs. Data = XBRL sourcing difficulty (E/M/H).
 | Return on invested capital (ROIC) | Profitability | ★ | | 🏦 | 🏢 | M |
 | EBITDA margin | Profitability | ☆ | | 🏦 | 🏢 | M |
 | Return on assets (ROA) | Profitability | ☆ | | | 🏢 | E |
-| Return on net operating assets (RNOA) | Profitability | ☆ | | 🏦 | | H |
 | Total asset turnover | Efficiency | ★ | | 🏦 | | E |
 | Cash conversion cycle (+ DIO, DSO, DPO) | Efficiency | ★ | | 🏦 | 🏢 | M |
 | Fixed asset turnover | Efficiency | ☆ | | 🏦 | | E |
@@ -887,7 +880,7 @@ financials, 🏢 = caveat for REITs. Data = XBRL sourcing difficulty (E/M/H).
 | Interest coverage (EBIT/interest) | Solvency | ★ | | 🏦 | | M |
 | Debt-to-capital / debt-to-assets | Solvency | ☆ | | 🏦 | | H |
 | Financial leverage (equity multiplier) | Solvency | ☆ | | | | E |
-| EBITDA/interest, fixed-charge coverage | Solvency | ☆ | | 🏦 | | M |
+| EBITDA/interest coverage | Solvency | ☆ | | 🏦 | | M |
 | CFO / total debt | Solvency | ☆ | | 🏦 | | H |
 | Free cash flow (CFO − capex) | Cash flow | ★ | | 🏦 | 🏢 | E |
 | FCF margin | Cash flow | ★ | | 🏦 | 🏢 | M |
@@ -1008,8 +1001,8 @@ Practical notes for the next phase, verified against the live APIs (August 2026)
   https://pages.stern.nyu.edu/~adamodar/New_Home_Page/invfables/growthdeterminants.htm
 - McKinsey & Company, *Valuation* value-driver framework; "How to choose between growth
   and ROIC" — mckinsey.com
-- Penman, S., *Financial Statement Analysis and Security Valuation* (RNOA framework,
-  accruals research)
+- Penman, S., *Financial Statement Analysis and Security Valuation* (ratio
+  decomposition, accruals research)
 - Graham, B., *The Intelligent Investor* (defensive-investor criteria, via
   grahamvalue.com)
 - Piotroski, J. (2000), "Value Investing: The Use of Historical Financial Statement

@@ -145,6 +145,28 @@ detail that makes a composite interpretable:
   arguments. Uses the original paper's 4.679 total-accruals coefficient, not the
   4.697 that circulates in secondary sources.
 
+### Quarterly-report computability audit
+
+Every function was audited against the rule that the app computes metrics from
+quarterly earnings reports (10-Q filings, with the 10-K serving as the Q4/annual
+filing): each parameter must be a line item on the income statement, balance
+sheet, or cash flow statement in those filings — or derivable from two
+consecutive filings (averages, working-capital changes, trailing-twelve-month
+sums) — with one allowed exception: `market_capitalization`, which comes from
+`data/stock_directory.json` rather than filings (a confirmed scope decision, so
+the valuation metrics and the original Altman Z-Score stay).
+
+Two metrics failed the audit and were removed:
+
+- **Return on net operating assets (RNOA, Penman)** — "net operating assets" and
+  "after-tax operating income" are not line items; producing them requires
+  reformulating the statements into operating vs financing components, which is
+  analyst judgment rather than scraping. Return on invested capital is the
+  practical stand-in.
+- **Fixed-charge coverage** — lease *payments* appear in lease footnotes, not the
+  three statements; without the lease terms the formula collapses into plain
+  `interest_coverage`, which already exists.
+
 ### What is deliberately *not* in the module
 
 - **PEG** — excluded per the reference doc (§8): the canonical form needs analyst

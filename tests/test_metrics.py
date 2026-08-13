@@ -64,7 +64,6 @@ def test_returns_on_capital():
     assert m.return_on_assets(120, 2000) == approx(0.06)
     assert m.return_on_invested_capital(150, 1200) == approx(0.125)
     assert m.return_on_invested_capital(150, 0) is None
-    assert m.return_on_net_operating_assets(150, 1200) == approx(0.125)
 
 
 # ---------------------------------------------------------------------------
@@ -127,7 +126,6 @@ def test_coverage_ratios():
     assert m.earnings_before_interest_taxes_depreciation_and_amortization_interest_coverage(
         250, 25
     ) == approx(10.0)
-    assert m.fixed_charge_coverage(200, 40, 25) == approx(240 / 65)
     assert m.operating_cash_flow_to_debt(300, 400) == approx(0.75)
 
 
