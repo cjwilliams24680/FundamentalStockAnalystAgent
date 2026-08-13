@@ -18,19 +18,16 @@ Conventions carry over from ``metrics.py``:
   the given inputs (missing data, zero denominator, or not meaningful per the
   reference doc). Where ``None`` itself carries information — no debt, negative
   book equity — the field description says so.
-- The four ``..._growth`` fields are year-over-year applications of
-  :func:`metrics.growth_rate` to revenue, earnings per share, operating
-  income, and free cash flow (the series named in docs section 7).
-  :func:`metrics.compound_annual_growth_rate` has no field here — it needs
-  multi-year history beyond a single report pair.
-- Composite scores nest the result classes defined in ``metrics.py``
-  (per-signal and per-factor detail preserved); the Altman zone fields hold
-  the ``metrics.Z_SAFE`` / ``Z_GREY`` / ``Z_DISTRESS`` strings.
+- The Altman zone fields hold the ``metrics.Z_SAFE`` / ``Z_GREY`` /
+  ``Z_DISTRESS`` strings.
+- Calculations that need multiple quarterly reports (average balances,
+  prior-period values, period-over-period changes) are descoped until
+  multi-report support lands and have no fields here — see
+  ``docs/descoped_multi_period_metrics.md`` for the list and how to restore
+  them.
 """
 
 from pydantic import BaseModel, ConfigDict, Field
-
-from metrics import BeneishResult, DuPontFiveFactor, DuPontThreeFactor, FScoreResult
 
 
 class CalculatedMetrics(BaseModel):
@@ -210,131 +207,6 @@ class CalculatedMetrics(BaseModel):
             " meaningful for financials."
         ),
     )
-    return_on_equity: float | None = Field(
-        default=None,
-        description=(
-            "Net income / average shareholders' equity, as a decimal"
-            " fraction. Sustained ~0.15+ is the common quality bar. Never"
-            " read alone: it is mechanically inflated by leverage — check"
-            " the DuPont decomposition's equity multiplier to see whether it"
-            " is operationally earned. None when average equity is not"
-            " positive (common after heavy buybacks) — fall back to return"
-            " on invested capital. The primary profitability metric for"
-            " banks and insurers."
-        ),
-    )
-    return_on_assets: float | None = Field(
-        default=None,
-        description=(
-            "Net income / average total assets, as a decimal fraction. For"
-            " non-financials above 0.05 is good and above 0.10 excellent."
-            " Banks run on a different scale entirely: ~0.01+ is the classic"
-            " good-bank threshold. One of the few return metrics that works"
-            " for banks."
-        ),
-    )
-    return_on_invested_capital: float | None = Field(
-        default=None,
-        description=(
-            "Net operating profit after tax / average invested capital"
-            " (commonly abbreviated ROIC), as a decimal fraction. Anchor to"
-            " the cost of capital (typical large-cap weighted average cost"
-            " of capital is ~0.08-0.10): below 0.08 likely value-destroying;"
-            " 0.10-0.15 solid; above 0.15 durable-competitive-advantage"
-            " territory; above 0.40 unusual — usually book capital shrunken"
-            " by past write-offs rather than superhuman economics. Growth"
-            " only creates value when this exceeds the cost of capital."
-            " Undefined for financials — use return on equity there."
-        ),
-    )
-
-    # ------------------------------------------------------------------
-    # Efficiency
-    # ------------------------------------------------------------------
-
-    total_asset_turnover: float | None = Field(
-        default=None,
-        description=(
-            "Revenue / average total assets — revenue per dollar of assets."
-            " Most non-financials fall roughly 0.5-2.0; below 0.25 outside"
-            " utilities and real estate is unusual (idle assets or an"
-            " overvalued asset base). A low value can just mean capital"
-            " intensity, not inefficiency — peer-relative only. Trivially"
-            " tiny (~0.03-0.1) and signal-free for banks."
-        ),
-    )
-    fixed_asset_turnover: float | None = Field(
-        default=None,
-        description=(
-            "Revenue / average net fixed assets. Capital-intensive firms"
-            " typically run ~1-4; only meaningful there. Mechanically rises"
-            " as assets depreciate, so a high or rising value alongside flat"
-            " capital spending is an aging-asset-base artifact — check"
-            " capital expenditures to depreciation before crediting"
-            " efficiency. Noise for services, software, and financials."
-        ),
-    )
-    working_capital_turnover: float | None = Field(
-        default=None,
-        description=(
-            "Revenue / average working capital. None when average working"
-            " capital is not positive — which is common and makes the ratio"
-            " uninterpretable (the cash conversion cycle is the better"
-            " lens). Where defined, higher = leaner funding of operations;"
-            " above ~10 is unusually high — a thin working-capital buffer or"
-            " a structurally negative-working-capital model; cross-check the"
-            " liquidity ratios."
-        ),
-    )
-    days_inventory_on_hand: float | None = Field(
-        default=None,
-        description=(
-            "Days of inventory held (365 / inventory turnover). Level"
-            " varies widely by industry; the signal is the trend — rising"
-            " days flag obsolescence risk or demand weakness. None for"
-            " businesses without inventory (software, services), which is"
-            " legitimate, not missing data."
-        ),
-    )
-    days_sales_outstanding: float | None = Field(
-        default=None,
-        description=(
-            "Days to collect receivables (365 / receivables turnover)."
-            " Roughly 30-60 days typical; above 90 unusual — collection"
-            " problems or channel stuffing. Rising faster than revenue is a"
-            " classic aggressive-revenue-recognition red flag."
-        ),
-    )
-    purchases: float | None = Field(
-        default=None,
-        description=(
-            "Cost of goods sold plus the change in inventory, in the"
-            " filing's currency — an approximation used as the denominator"
-            " basis for days payables outstanding. An intermediate, not a"
-            " metric to interpret on its own."
-        ),
-    )
-    days_payables_outstanding: float | None = Field(
-        default=None,
-        description=(
-            "Days taken to pay suppliers (365 / payables turnover). Roughly"
-            " 30-60 days typical. High is ambiguous — supplier bargaining"
-            " power or payment distress — triangulate with the liquidity"
-            " ratios before reading it either way."
-        ),
-    )
-    cash_conversion_cycle: float | None = Field(
-        default=None,
-        description=(
-            "Days inventory + days sales outstanding - days payables"
-            " outstanding: days of cash tied up between paying suppliers"
-            " and collecting from customers. Roughly 30-90 days common for"
-            " manufacturers and retailers; lower is better; negative means"
-            " suppliers finance the operation — a structural advantage, not"
-            " a flag. Undefined for financials and REITs; degenerate for"
-            " no-inventory businesses."
-        ),
-    )
 
     # ------------------------------------------------------------------
     # Liquidity (all meaningless for banks and insurers — they file
@@ -423,18 +295,6 @@ class CalculatedMetrics(BaseModel):
             "Total debt / (total debt + equity) — the form credit analysts"
             " prefer, bounded 0-1. For non-financials: below 0.3-0.4"
             " conservative; 0.4-0.6 moderate; above 0.6 aggressive."
-        ),
-    )
-    financial_leverage: float | None = Field(
-        default=None,
-        description=(
-            "Average total assets / average total equity (the equity"
-            " multiplier — the leverage leg of the DuPont decomposition;"
-            " captures all liabilities, not just debt). Around 2-3 is"
-            " typical for non-financials; above 5 is high — or a"
-            " buyback-shrunken equity base, so check book equity before"
-            " reading it as debt risk. Banks structurally run ~8-15, and"
-            " this is the leverage measure that stays meaningful for them."
         ),
     )
     net_debt_to_earnings_before_interest_taxes_depreciation_and_amortization: float | None = Field(
@@ -538,9 +398,8 @@ class CalculatedMetrics(BaseModel):
         description=(
             "Capital expenditures / depreciation and amortization. Above 1"
             " = growing asset base; below 1 = possible underinvestment (a"
-            " rough maintenance-spending proxy). Read alongside fixed asset"
-            " turnover to catch an aging asset base masquerading as"
-            " efficiency."
+            " rough maintenance-spending proxy) and, if sustained, an aging"
+            " asset base."
         ),
     )
 
@@ -548,87 +407,12 @@ class CalculatedMetrics(BaseModel):
     # Growth
     # ------------------------------------------------------------------
 
-    revenue_growth: float | None = Field(
-        default=None,
-        description=(
-            "Year-over-year revenue growth, as a decimal fraction. Negative"
-            " = contraction (distinguish a cyclical dip from secular"
-            " decline); 0-0.05 mature/GDP-pace; 0.05-0.15 healthy; above"
-            " 0.20 high growth; above 0.40 sustained is rare — verify it is"
-            " not acquisition-driven. Growth rates fade toward ~0.02-0.05"
-            " nominal over time regardless of industry, so extrapolating"
-            " high growth is the classic error."
-        ),
-    )
-    earnings_per_share_growth: float | None = Field(
-        default=None,
-        description=(
-            "Year-over-year growth in earnings per share, as a decimal"
-            " fraction. Around 0.10+ sustained is strong; above 0.25 rarely"
-            " persists. None when the base year is not meaningfully positive"
-            " (growth off a loss is meaningless). Growth driven by buybacks"
-            " without operating-income growth is lower quality — compare"
-            " revenue, operating income, and per-share growth side by side."
-        ),
-    )
-    operating_income_growth: float | None = Field(
-        default=None,
-        description=(
-            "Year-over-year operating income growth, as a decimal fraction."
-            " The intermediate step: versus revenue growth it exposes"
-            " operating leverage; versus earnings-per-share growth it"
-            " exposes financing and tax effects. None off a non-positive"
-            " base year."
-        ),
-    )
-    free_cash_flow_growth: float | None = Field(
-        default=None,
-        description=(
-            "Year-over-year free cash flow growth, as a decimal fraction."
-            " Validates whether earnings growth is cash-backed. Too noisy to"
-            " lead the analysis (capital-spending timing, working-capital"
-            " swings) — smooth over multiple years. None off a non-positive"
-            " base year."
-        ),
-    )
     retention_rate: float | None = Field(
         default=None,
         description=(
             "1 - payout ratio: the share of earnings reinvested. Near 1"
             " typical for growth firms (paying no dividend); near 0 means"
             " nearly all earnings are paid out."
-        ),
-    )
-    sustainable_growth_rate: float | None = Field(
-        default=None,
-        description=(
-            "Retention rate times return on equity — the growth fundable"
-            " from retained earnings without new capital. Read as a"
-            " comparison, not a level: actual growth persistently above it"
-            " means expect share issuance or rising leverage to fund the"
-            " gap; growth well below it with high return on equity means"
-            " capacity to raise dividends or buybacks."
-        ),
-    )
-    reinvestment_rate: float | None = Field(
-        default=None,
-        description=(
-            "(Net capital expenditures + change in working capital) / net"
-            " operating profit after tax (Damodaran). Can exceed 1"
-            " (investing more than after-tax operating profit) or be"
-            " negative (shrinking the asset base). Lumpy — average over"
-            " several years before reading it. None when net operating"
-            " profit after tax is not positive. Not computable for"
-            " financials."
-        ),
-    )
-    fundamental_growth: float | None = Field(
-        default=None,
-        description=(
-            "Reinvestment rate times return on invested capital — expected"
-            " operating-income growth from the value-driver identity. A"
-            " modeled quantity, not a screened one: compare against actual"
-            " growth as a plausibility check."
         ),
     )
 
@@ -776,17 +560,6 @@ class CalculatedMetrics(BaseModel):
     # Composite scores
     # ------------------------------------------------------------------
 
-    piotroski_f_score: FScoreResult | None = Field(
-        default=None,
-        description=(
-            "Piotroski (2000) nine-signal score with per-signal detail."
-            " 8-9 strong, 3-7 middling (no signal either way), 0-2 weak; 7+"
-            " is the common long-screen cutoff. Compare score against"
-            " max_score — 5 of 6 evaluable signals reads differently from 5"
-            " of 9. Designed for cheap (high book-to-market) non-financial"
-            " stocks; exclude financials."
-        ),
-    )
     altman_z_score: float | None = Field(
         default=None,
         description=(
@@ -817,36 +590,5 @@ class CalculatedMetrics(BaseModel):
         description=(
             "Zone label for altman_z_double_prime: 'safe' (> 2.6), 'grey',"
             " or 'distress' (< 1.1)."
-        ),
-    )
-    dupont_three_factor: DuPontThreeFactor | None = Field(
-        default=None,
-        description=(
-            "Return on equity decomposed as net margin x asset turnover x"
-            " equity multiplier. High return on equity earned from margin"
-            " or turnover is operationally earned (higher quality); driven"
-            " mainly by the equity multiplier, it is leverage-manufactured"
-            " (fragile). Bank equity multipliers are structurally huge —"
-            " compare within sector."
-        ),
-    )
-    dupont_five_factor: DuPontFiveFactor | None = Field(
-        default=None,
-        description=(
-            "Return on equity decomposed as tax burden x interest burden x"
-            " operating margin x asset turnover x equity multiplier —"
-            " separates operating performance from financing and tax"
-            " effects. None when pretax income or operating income is not"
-            " positive (terms uninterpretable)."
-        ),
-    )
-    beneish_m_score: BeneishResult | None = Field(
-        default=None,
-        description=(
-            "Beneish (1999) earnings-manipulation score with its eight"
-            " component indices. An m_score above -1.78 flags a likely"
-            " manipulator (-2.22 is the conservative cutoff) — a red flag"
-            " to investigate, never a rating to maximize; the accruals term"
-            " dominates. Never score financials."
         ),
     )

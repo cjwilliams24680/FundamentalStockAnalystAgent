@@ -19,8 +19,8 @@ Two conventions:
   a zero flow), so metrics built on them stay ``None`` when unreported.
 - Metrics that need average balances, prior-period values, or
   period-over-period changes cannot be computed from a single parse result;
-  those fields are stubbed to ``None`` with a TODO naming the missing input.
-  They become computable once a prior-period parse result is threaded in.
+  they are descoped until multiple reports are supported and have no
+  ``CalculatedMetrics`` fields — see ``docs/descoped_multi_period_metrics.md``.
 """
 
 import metrics
@@ -140,31 +140,6 @@ def run_all_calculations(
                 parse_result.revenue,
             )
         ),
-        # TODO: needs prior-period parse result (average shareholders' equity).
-        return_on_equity=None,
-        # TODO: needs prior-period parse result (average total assets).
-        return_on_assets=None,
-        # TODO: needs prior-period parse result (average invested capital).
-        return_on_invested_capital=None,
-        # ------------------------------------------------------------------
-        # Efficiency
-        # ------------------------------------------------------------------
-        # TODO: needs prior-period parse result (average total assets).
-        total_asset_turnover=None,
-        # TODO: needs prior-period parse result (average net fixed assets).
-        fixed_asset_turnover=None,
-        # TODO: needs prior-period parse result (average working capital).
-        working_capital_turnover=None,
-        # TODO: needs prior-period parse result (average inventory).
-        days_inventory_on_hand=None,
-        # TODO: needs prior-period parse result (average receivables).
-        days_sales_outstanding=None,
-        # TODO: needs prior-period parse result (change in inventory).
-        purchases=None,
-        # TODO: needs prior-period parse result (average payables, purchases).
-        days_payables_outstanding=None,
-        # TODO: needs prior-period parse result (built from the three day counts above).
-        cash_conversion_cycle=None,
         # ------------------------------------------------------------------
         # Liquidity
         # ------------------------------------------------------------------
@@ -198,8 +173,6 @@ def run_all_calculations(
         debt_to_equity=metrics.debt_to_equity(total_debt, parse_result.shareholders_equity),
         debt_to_assets=metrics.debt_to_assets(total_debt, parse_result.total_assets),
         debt_to_capital=metrics.debt_to_capital(total_debt, parse_result.shareholders_equity),
-        # TODO: needs prior-period parse result (average total assets and equity).
-        financial_leverage=None,
         net_debt_to_earnings_before_interest_taxes_depreciation_and_amortization=(
             metrics.net_debt_to_earnings_before_interest_taxes_depreciation_and_amortization(
                 net_debt, earnings_before_interest_taxes_depreciation_and_amortization
@@ -244,22 +217,7 @@ def run_all_calculations(
         # ------------------------------------------------------------------
         # Growth
         # ------------------------------------------------------------------
-        # TODO: needs prior-period parse result (prior revenue).
-        revenue_growth=None,
-        # TODO: needs prior-period parse result (prior earnings per share).
-        earnings_per_share_growth=None,
-        # TODO: needs prior-period parse result (prior operating income).
-        operating_income_growth=None,
-        # TODO: needs prior-period parse result (prior free cash flow).
-        free_cash_flow_growth=None,
         retention_rate=metrics.retention_rate(payout_ratio),
-        # TODO: needs prior-period parse result (return on equity, via average equity).
-        sustainable_growth_rate=None,
-        # TODO: needs prior-period parse result (change in working capital).
-        reinvestment_rate=None,
-        # TODO: needs prior-period parse result (reinvestment rate and return on
-        # invested capital, both stubbed above).
-        fundamental_growth=None,
         # ------------------------------------------------------------------
         # Valuation
         # ------------------------------------------------------------------
@@ -303,16 +261,8 @@ def run_all_calculations(
         # ------------------------------------------------------------------
         # Composite scores
         # ------------------------------------------------------------------
-        # TODO: needs prior-year parse result (all nine signals compare two years).
-        piotroski_f_score=None,
         altman_z_score=altman_z_score,
         altman_z_zone=metrics.altman_z_zone(altman_z_score),
         altman_z_double_prime=altman_z_double_prime,
         altman_z_double_prime_zone=metrics.altman_z_double_prime_zone(altman_z_double_prime),
-        # TODO: needs prior-period parse result (average total assets and equity).
-        dupont_three_factor=None,
-        # TODO: needs prior-period parse result (average total assets and equity).
-        dupont_five_factor=None,
-        # TODO: needs prior-year parse result (a full BeneishPeriod for both years).
-        beneish_m_score=None,
     )
