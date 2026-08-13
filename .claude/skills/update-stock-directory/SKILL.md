@@ -1,6 +1,6 @@
 ---
 name: update-stock-directory
-description: Refresh the local stock directory data file, stored at data/stock_directory.json, so that it has the latest information about exchange, sector, industry, and market cap. Use this skill when the user asks to update, refresh, or rebuild the stock directory, or when the directory is stale or missing.
+description: Refresh the local stock directory data file, stored at data/stock_directory.json, so that it has the latest information on all US-listed stocks. Information such as exchange, sector, industry, and market cap. Use this skill when the user explicitly asks to update, refresh, or rebuild the stock directory, or when the directory is stale or missing.
 ---
 
 # Update Stock Directory
