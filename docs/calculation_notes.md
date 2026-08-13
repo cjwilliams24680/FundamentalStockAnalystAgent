@@ -40,7 +40,8 @@ the module fetches data, reads files, or knows about SEC EDGAR. This was deliber
   input).
 
 The wiring contract is simple: the data layer's job is to produce the named inputs
-(`revenue`, `cfo`, `avg_total_assets`, ...); this module's job is everything after.
+(`revenue`, `operating_cash_flow`, `average_total_assets`, ...); this module's job
+is everything after.
 
 ### `None` is a first-class result, not an error
 
@@ -55,33 +56,45 @@ Every input is typed `float | None` and every function returns `None` in three c
 
    | Function | Returns `None` when | Doc rationale |
    |---|---|---|
-   | `price_to_earnings` | net income ≤ 0 | P/E undefined on losses — rank on `earnings_yield` instead |
+   | `price_to_earnings` | net income ≤ 0 | price-to-earnings undefined on losses — rank on `earnings_yield` instead |
    | `price_to_book` | book equity ≤ 0 | negative book value |
-   | `debt_to_equity`, `return_on_equity`, `financial_leverage` | equity ≤ 0 | meaningless with negative equity — fall back to `debt_to_capital` / ROIC |
-   | `interest_coverage` (and EBITDA variant) | interest expense ≤ 0 | "no debt" is not infinite coverage — report not-meaningful |
-   | `net_debt_to_ebitda`, `ev_to_ebitda`, `fcf_conversion` | EBITDA ≤ 0 | ratio meaningless; fall back to sales multiples |
-   | `cfo_to_net_income`, `payout_ratio` | net income ≤ 0 | ratio explodes near zero — use `sloan_accruals_ratio` / compare dividends to FCF |
-   | `growth_rate`, `cagr` | base period ≤ 0 | growth off a non-positive base is meaningless |
+   | `debt_to_equity`, `return_on_equity`, `financial_leverage` | equity ≤ 0 | meaningless with negative equity — fall back to `debt_to_capital` / return on invested capital |
+   | `interest_coverage` (and the EBITDA-based variant) | interest expense ≤ 0 | "no debt" is not infinite coverage — report not-meaningful |
+   | `net_debt_to_earnings_before_interest_taxes_depreciation_and_amortization`, `enterprise_value_to_earnings_before_interest_taxes_depreciation_and_amortization`, `free_cash_flow_conversion` | EBITDA ≤ 0 | ratio meaningless; fall back to sales multiples |
+   | `operating_cash_flow_to_net_income`, `payout_ratio` | net income ≤ 0 | ratio explodes near zero — use `sloan_accruals_ratio` / compare dividends to free cash flow |
+   | `growth_rate`, `compound_annual_growth_rate` | base period ≤ 0 | growth off a non-positive base is meaningless |
    | `working_capital_turnover` | average working capital ≤ 0 | CFA: uninterpretable there |
-   | `effective_tax_rate`, `reinvestment_rate`, `dupont_5` | pretax income / NOPAT / EBIT ≤ 0 | components uninterpretable |
+   | `effective_tax_rate`, `reinvestment_rate`, `dupont_five_factor` | pretax income / after-tax operating profit / operating income ≤ 0 | components uninterpretable |
 
-   One deliberate asymmetry: `net_debt_to_ebitda` **does** return negative values
-   (net cash — meaningful), while `ev_to_ebitda` and `price_to_earnings` do not
-   (negative multiples are not).
+   One deliberate asymmetry: net debt over EBITDA **does** return negative values
+   (net cash — meaningful), while enterprise value over EBITDA and
+   `price_to_earnings` do not (negative multiples are not).
+
+### No abbreviations in identifiers
+
+Function names, parameters, variables, dataclass fields, and dictionary keys spell
+terms out in full: `operating_cash_flow` not `cfo`, `capital_expenditures` not
+`capex`, `cost_of_goods_sold` not `cogs`, `compound_annual_growth_rate` not `cagr`,
+`average_...` not `avg_...`, `market_capitalization` not `market_cap`, and even
+`earnings_before_interest_taxes_depreciation_and_amortization` rather than
+`ebitda`. Proper names stay as names (Piotroski F-Score, Altman Z, Beneish M,
+Sloan, DuPont). Docstrings note the common short form (for example, "commonly
+abbreviated EBITDA") so functions can be matched to the terminology in the
+reference doc. New code in this repo should follow the same rule.
 
 ### Sign and unit conventions
 
 - **Monetary inputs are absolute amounts** in the filing's currency, not per-share
   (`earnings_per_share` exists to derive per-share values when needed).
-- **Capex, dividends, buybacks, and stock issuance are positive magnitudes** — cash
-  flow statement outflows/inflows with the sign stripped. Exception:
-  `sloan_accruals_ratio` takes `cfi` with its natural statement sign (usually
-  negative), matching the published formula.
+- **Capital expenditures, dividends, buybacks, and stock issuance are positive
+  magnitudes** — cash flow statement outflows/inflows with the sign stripped.
+  Exception: `sloan_accruals_ratio` takes `investing_cash_flow` with its natural
+  statement sign (usually negative), matching the published formula.
 - **Ratios return decimal fractions** (0.25 = 25%); day-count metrics return days
   (365-day year via the `DAYS_PER_YEAR` constant).
 - **Flow inputs must cover the same period** (typically TTM); balance-sheet inputs
   are point-in-time. Where the CFA convention calls for an average balance the
-  parameter is named `avg_...` — use the `average(beginning, ending)` helper. The
+  parameter is named `average_...` — use the `average(beginning, ending)` helper. The
   module does not compute TTM; that is the data layer's job (reference doc §11,
   pitfall 3).
 
@@ -95,14 +108,17 @@ exactly one place:
 - `net_debt` — total debt − cash − marketable securities.
 - `invested_capital` — debt + equity − cash (cash netted out because interest income
   is not operating income).
-- `enterprise_value` — market cap + debt (+ preferred + minority interest, both
-  defaulting to 0) − cash. Market cap comes from `data/stock_directory.json`; no
-  share-price feed is needed anywhere in the module.
-- `ebitda` — operating income + D&A, with D&A taken from the cash flow statement
-  (income-statement D&A is often buried in COGS/SG&A).
-- `nopat` — EBIT × (1 − effective tax *rate*), never actual taxes paid (that would
-  double-count the debt tax shield).
-- `free_cash_flow` — CFO − capex, the app-standard form from the reference doc.
+- `enterprise_value` — market capitalization + debt (+ preferred + minority
+  interest, both defaulting to 0) − cash. Market capitalization comes from
+  `data/stock_directory.json`; no share-price feed is needed anywhere in the module.
+- `earnings_before_interest_taxes_depreciation_and_amortization` — operating income
+  + depreciation and amortization, with the latter taken from the cash flow
+  statement (income-statement depreciation is often buried in cost of goods sold
+  or overhead lines).
+- `net_operating_profit_after_tax` — operating income × (1 − effective tax *rate*),
+  never actual taxes paid (that would double-count the debt tax shield).
+- `free_cash_flow` — operating cash flow − capital expenditures, the app-standard
+  form from the reference doc.
 
 ### Composite scores return dataclasses, not bare numbers
 
@@ -118,14 +134,16 @@ detail that makes a composite interpretable:
   `altman_z_double_prime_zone` classifiers map to `"safe"` / `"grey"` / `"distress"`
   because the two model variants have different thresholds. The caller picks the
   variant: original for manufacturers (SIC 2000–3999), Z″ for other non-financials.
-- **`dupont_3` / `dupont_5` → `DuPont3` / `DuPont5`** — the components, with `.roe`
-  as a derived property so the decomposition always multiplies back to ROE exactly
-  (asserted in tests against `return_on_equity`).
-- **`beneish_m_score` → `BeneishResult`** — the M-score, all eight indices, and a
+- **`dupont_three_factor` / `dupont_five_factor` → `DuPontThreeFactor` /
+  `DuPontFiveFactor`** — the components, with `.return_on_equity` as a derived
+  property so the decomposition always multiplies back to the directly computed
+  ratio exactly (asserted in tests against `return_on_equity`).
+- **`beneish_m_score` → `BeneishResult`** — the M-score, all eight indices (keyed by
+  their full names, e.g. `days_sales_in_receivables_index`), and a
   `likely_manipulator` property using the original paper's −1.78 threshold. Inputs
   are two `BeneishPeriod` dataclasses (current and prior year) rather than ~24 loose
-  arguments. Uses the original paper's 4.679 TATA coefficient, not the 4.697 that
-  circulates in secondary sources.
+  arguments. Uses the original paper's 4.679 total-accruals coefficient, not the
+  4.697 that circulates in secondary sources.
 
 ### What is deliberately *not* in the module
 
@@ -146,9 +164,10 @@ detail that makes a composite interpretable:
 
 `tests/test_metrics.py` checks every function against hand-computed values from one
 coherent fake company (stated in the test module docstring: revenue 1000, COGS 600,
-net income 120, CFO 300, capex 80, total assets 2000, equity 1000, market cap
-5000, ...), so cross-metric identities hold — e.g., DuPont components multiply back
-to the directly computed ROE.
+net income 120, operating cash flow 300, capital expenditures 80, total assets
+2000, equity 1000, market capitalization 5000, ...), so cross-metric identities
+hold — e.g., DuPont components multiply back to the directly computed return on
+equity.
 
 Beyond the happy path, the tests pin the edge-case semantics:
 
@@ -171,8 +190,8 @@ The intended flow once the EDGAR layer exists:
 
 ```
 EDGAR companyfacts ──▶ tag-mapping / fallback chains ──▶ named inputs ──▶ metrics.py
-                       (reference doc §11)                (revenue, cfo, ...)
-stock_directory.json ──▶ market_cap ────────────────────────────┘
+                       (reference doc §11)                (revenue, operating_cash_flow, ...)
+stock_directory.json ──▶ market_capitalization ─────────────────┘
 ```
 
 The data layer resolves each named input per company (handling tag fallbacks, TTM,
