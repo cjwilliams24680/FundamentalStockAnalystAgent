@@ -38,6 +38,24 @@ class QuarterlyReportParseResult(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
+    def merge(
+        self, other: "QuarterlyReportParseResult"
+    ) -> "QuarterlyReportParseResult":
+        """Combine two parse results, preferring this instance's values.
+
+        For each field, uses this instance's value when it is not ``None``,
+        otherwise falls back to ``other``'s value.
+        """
+        merged_field_values = {
+            field_name: (
+                getattr(self, field_name)
+                if getattr(self, field_name) is not None
+                else getattr(other, field_name)
+            )
+            for field_name in type(self).model_fields
+        }
+        return QuarterlyReportParseResult(**merged_field_values)
+
     # ------------------------------------------------------------------
     # Income statement
     # ------------------------------------------------------------------
@@ -391,4 +409,27 @@ class QuarterlyReportParseResult(BaseModel):
             " noncontrolling interests are present, use the amount"
             " attributable to the parent company."
         ),
+    )
+
+
+def get_diffs(
+    first: QuarterlyReportParseResult, second: QuarterlyReportParseResult
+) -> list[str]:
+    """Describe every field whose value differs between ``first`` and
+    ``second``, one string per differing field. Equal instances yield an
+    empty list."""
+    diffs = []
+    for field_name in QuarterlyReportParseResult.model_fields:
+        first_value = getattr(first, field_name)
+        second_value = getattr(second, field_name)
+        if first_value != second_value:
+            diffs.append(f"{field_name}: {first_value} != {second_value}")
+    return diffs
+
+
+def count_populated_fields(parse_result: QuarterlyReportParseResult) -> int:
+    """Number of fields on ``parse_result`` that are not ``None``."""
+    return sum(
+        getattr(parse_result, field_name) is not None
+        for field_name in QuarterlyReportParseResult.model_fields
     )
