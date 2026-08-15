@@ -21,6 +21,18 @@ kept in code comments instead. It deliberately excludes:
   build those inputs by combining the current instance with one parsed from
   an earlier report (using :func:`metrics.average` for average balances).
 
+One instance covers one reporting period measured fiscal-year-to-date: every
+flow value (income statement and cash flow statement) runs from the start of
+the fiscal year through the balance sheet date. Parse the year-to-date
+column — labeled 'Three/Six/Nine months ended' or
+'Thirteen/Twenty-six/Thirty-nine weeks ended' depending on the quarter —
+never the single-quarter column; in a first-quarter filing the two coincide.
+The cash flow statement is only presented year-to-date, so this is the only
+period for which one filing provides a complete, consistent set of flows;
+true single-quarter flows are a multi-period derivation (differencing
+consecutive parse results), like the other multi-period inputs excluded
+above. Balance-sheet values are point-in-time as of the period end.
+
 Conventions match ``metrics.py``: absolute amounts in the filing's currency
 (not per-share); every field defaults to ``None`` meaning the value was not
 reported (mirroring the gaps in real XBRL data); capital expenditures,
@@ -66,7 +78,8 @@ class QuarterlyReportParseResult(BaseModel):
             "Top line of the income statement. Labeled 'Revenue', 'Net"
             " sales', 'Total revenues', 'Net revenues', or 'Sales'. If"
             " product and service revenue are listed separately, use the"
-            " total."
+            " total. Use the year-to-date column (e.g. 'Six months ended' or"
+            " 'Thirty-nine weeks ended'), not the single-quarter column."
         ),
     )
     cost_of_goods_sold: float | None = Field(
@@ -74,7 +87,9 @@ class QuarterlyReportParseResult(BaseModel):
         description=(
             "Income statement line directly below revenue. Labeled 'Cost of"
             " goods sold', 'Cost of sales', 'Cost of revenue', or 'Cost of"
-            " products sold'."
+            " products sold'. Use the year-to-date column (e.g. 'Six months"
+            " ended' or 'Thirty-nine weeks ended'), not the single-quarter"
+            " column."
         ),
     )
     # Feeds every ``operating_income`` and ``earnings_before_interest_and_taxes``
@@ -84,7 +99,8 @@ class QuarterlyReportParseResult(BaseModel):
         description=(
             "Income statement subtotal after operating expenses. Labeled"
             " 'Operating income', 'Income from operations', or 'Operating"
-            " profit'."
+            " profit'. Use the year-to-date column (e.g. 'Six months ended'"
+            " or 'Thirty-nine weeks ended'), not the single-quarter column."
         ),
     )
     pretax_income: float | None = Field(
@@ -93,7 +109,8 @@ class QuarterlyReportParseResult(BaseModel):
             "Income statement line just above the tax provision. Labeled"
             " 'Income before income taxes', 'Income before provision for"
             " income taxes', 'Earnings before income taxes', or 'Pre-tax"
-            " income'."
+            " income'. Use the year-to-date column (e.g. 'Six months ended'"
+            " or 'Thirty-nine weeks ended'), not the single-quarter column."
         ),
     )
     income_tax_expense: float | None = Field(
@@ -101,7 +118,9 @@ class QuarterlyReportParseResult(BaseModel):
         description=(
             "Income statement line between pretax income and net income."
             " Labeled 'Provision for income taxes', 'Income tax provision',"
-            " or 'Income tax expense (benefit)'."
+            " or 'Income tax expense (benefit)'. Use the year-to-date column"
+            " (e.g. 'Six months ended' or 'Thirty-nine weeks ended'), not the"
+            " single-quarter column."
         ),
     )
     net_income: float | None = Field(
@@ -110,7 +129,9 @@ class QuarterlyReportParseResult(BaseModel):
             "Bottom line of the income statement. Labeled 'Net income' or"
             " 'Net earnings'. When noncontrolling interests are present, use"
             " the line 'Net income attributable to [company]', not the"
-            " consolidated total."
+            " consolidated total. Use the year-to-date column (e.g. 'Six"
+            " months ended' or 'Thirty-nine weeks ended'), not the"
+            " single-quarter column."
         ),
     )
     # BeneishPeriod.income_from_continuing_operations.
@@ -120,7 +141,9 @@ class QuarterlyReportParseResult(BaseModel):
             "Income statement line above any discontinued-operations items."
             " Labeled 'Income from continuing operations' (often 'net of"
             " tax'). Equals net income when the filing shows no discontinued"
-            " operations."
+            " operations. Use the year-to-date column (e.g. 'Six months"
+            " ended' or 'Thirty-nine weeks ended'), not the single-quarter"
+            " column."
         ),
     )
     interest_expense: float | None = Field(
@@ -130,6 +153,8 @@ class QuarterlyReportParseResult(BaseModel):
             " Labeled 'Interest expense'. Prefer the gross figure; filings"
             " that only show 'Interest expense, net' or 'Other income"
             " (expense), net' may break out the gross amount in the notes."
+            " Use the year-to-date amount (e.g. 'Six months ended' or"
+            " 'Thirty-nine weeks ended'), not the single-quarter amount."
         ),
     )
     # defensive_interval_ratio input.
@@ -137,7 +162,9 @@ class QuarterlyReportParseResult(BaseModel):
         default=None,
         description=(
             "Income statement subtotal of all operating costs. Labeled"
-            " 'Total operating expenses' or 'Total costs and expenses'."
+            " 'Total operating expenses' or 'Total costs and expenses'. Use"
+            " the year-to-date column (e.g. 'Six months ended' or"
+            " 'Thirty-nine weeks ended'), not the single-quarter column."
         ),
     )
     # BeneishPeriod.selling_general_and_administrative_expense.
@@ -147,7 +174,9 @@ class QuarterlyReportParseResult(BaseModel):
             "Operating expense line of the income statement. Labeled"
             " 'Selling, general and administrative' (commonly abbreviated"
             " SG&A). If shown as separate 'Selling and marketing' and"
-            " 'General and administrative' lines, use their sum."
+            " 'General and administrative' lines, use their sum. Use the"
+            " year-to-date column (e.g. 'Six months ended' or 'Thirty-nine"
+            " weeks ended'), not the single-quarter column."
         ),
     )
     preferred_dividends: float | None = Field(
@@ -156,16 +185,21 @@ class QuarterlyReportParseResult(BaseModel):
             "Below net income on the income statement or in the statement of"
             " stockholders' equity. Labeled 'Preferred stock dividends' or"
             " 'Dividends on preferred stock'. Usually absent — most companies"
-            " have no preferred stock outstanding."
+            " have no preferred stock outstanding. Use the year-to-date"
+            " amount, not the single-quarter amount."
         ),
     )
-    weighted_average_shares: float | None = Field(
+    weighted_average_diluted_shares: float | None = Field(
         default=None,
         description=(
             "Bottom of the income statement, near the per-share figures."
-            " Labeled 'Weighted-average shares outstanding' or"
-            " 'Weighted-average number of common shares' (basic). A share"
-            " count, not a currency amount."
+            " Labeled 'Weighted-average shares outstanding — diluted' or"
+            " 'Weighted-average number of common shares, diluted'. Use the"
+            " diluted count, not the basic one (in a loss period filers"
+            " report diluted equal to basic, so the diluted line always"
+            " exists). A share count, not a currency amount. Use the"
+            " year-to-date column's weighted average, not the single-quarter"
+            " figure."
         ),
     )
 
@@ -179,7 +213,8 @@ class QuarterlyReportParseResult(BaseModel):
             "Subtotal of the cash flow statement's operating section. Labeled"
             " 'Net cash provided by operating activities', 'Cash flows from"
             " operating activities', or 'Net cash generated by operating"
-            " activities'."
+            " activities'. Year-to-date, as the cash flow statement presents"
+            " it."
         ),
     )
     # sloan_accruals_ratio input; keeps its cash-flow-statement sign.
@@ -189,7 +224,8 @@ class QuarterlyReportParseResult(BaseModel):
             "Subtotal of the cash flow statement's investing section. Labeled"
             " 'Net cash used in investing activities' or 'Cash flows from"
             " investing activities'. Keep the sign as reported (usually"
-            " negative)."
+            " negative). Year-to-date, as the cash flow statement presents"
+            " it."
         ),
     )
     depreciation_and_amortization: float | None = Field(
@@ -198,7 +234,10 @@ class QuarterlyReportParseResult(BaseModel):
             "Adjustment near the top of the cash flow statement's operating"
             " section. Labeled 'Depreciation and amortization' (commonly"
             " abbreviated D&A). If depreciation and amortization appear as"
-            " separate lines, use their sum."
+            " separate lines, use their sum. Use the year-to-date amount from"
+            " the cash flow statement; when a note or supplementary schedule"
+            " shows both a single-quarter and a year-to-date figure, take the"
+            " year-to-date one."
         ),
     )
     # BeneishPeriod.depreciation — depreciation alone, excluding amortization.
@@ -208,7 +247,8 @@ class QuarterlyReportParseResult(BaseModel):
             "Depreciation expense excluding amortization. Found in the cash"
             " flow statement when shown as its own line, or in the property,"
             " plant and equipment note. Leave unset when the filing only"
-            " reports a combined depreciation-and-amortization figure."
+            " reports a combined depreciation-and-amortization figure. Use"
+            " the year-to-date figure, not the single-quarter one."
         ),
     )
     # defensive_interval_ratio input.
@@ -218,7 +258,8 @@ class QuarterlyReportParseResult(BaseModel):
             "Sum of the non-cash adjustment lines in the cash flow"
             " statement's operating section: depreciation and amortization,"
             " stock-based compensation, impairments, deferred income taxes,"
-            " and similar items (exclude working-capital changes)."
+            " and similar items (exclude working-capital changes). Sum the"
+            " year-to-date amounts, as the cash flow statement presents them."
         ),
     )
     capital_expenditures: float | None = Field(
@@ -227,7 +268,8 @@ class QuarterlyReportParseResult(BaseModel):
             "Investing section of the cash flow statement. Labeled 'Purchases"
             " of property, plant and equipment', 'Payments for property and"
             " equipment', 'Additions to property and equipment', or 'Capital"
-            " expenditures'. Record as a positive amount."
+            " expenditures'. Record the year-to-date amount as a positive"
+            " number."
         ),
     )
     dividends_paid: float | None = Field(
@@ -236,7 +278,8 @@ class QuarterlyReportParseResult(BaseModel):
             "Financing section of the cash flow statement. Labeled 'Dividends"
             " paid', 'Payments of dividends', or 'Cash dividends paid'. Use"
             " the common-stock amount when preferred dividends are listed"
-            " separately. Record as a positive amount."
+            " separately. Record the year-to-date amount as a positive"
+            " number."
         ),
     )
     # shareholder_yield's ``buybacks``.
@@ -245,8 +288,8 @@ class QuarterlyReportParseResult(BaseModel):
         description=(
             "Financing section of the cash flow statement. Labeled"
             " 'Repurchases of common stock', 'Payments for repurchase of"
-            " common stock', or 'Purchases of treasury stock'. Record as a"
-            " positive amount."
+            " common stock', or 'Purchases of treasury stock'. Record the"
+            " year-to-date amount as a positive number."
         ),
     )
     # Feeds shareholder_yield's ``stock_issued`` and piotroski_f_score's
@@ -257,7 +300,8 @@ class QuarterlyReportParseResult(BaseModel):
             "Financing section of the cash flow statement. Labeled 'Proceeds"
             " from issuance of common stock', often including 'Proceeds from"
             " exercise of stock options' or 'employee stock purchase plan'"
-            " lines — sum them. Record as a positive amount."
+            " lines — sum them. Record the year-to-date amount as a positive"
+            " number."
         ),
     )
 

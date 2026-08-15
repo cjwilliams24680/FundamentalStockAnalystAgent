@@ -128,8 +128,8 @@ class CalculatedMetrics(BaseModel):
     earnings_per_share: float | None = Field(
         default=None,
         description=(
-            "(Net income - preferred dividends) / weighted-average shares,"
-            " in currency per share. The level is not comparable across"
+            "(Net income - preferred dividends) / weighted-average diluted"
+            " shares, in currency per share. The level is not comparable across"
             " companies (share counts are arbitrary); its uses are the"
             " growth series and price ratios."
         ),

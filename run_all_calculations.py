@@ -69,7 +69,7 @@ def run_all_calculations(
     )
     earnings_per_share = metrics.earnings_per_share(
         parse_result.net_income,
-        parse_result.weighted_average_shares,
+        parse_result.weighted_average_diluted_shares,
         _zero_if_missing(parse_result.preferred_dividends),
     )
     enterprise_value = metrics.enterprise_value(
