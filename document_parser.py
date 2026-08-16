@@ -13,6 +13,7 @@ import asyncio
 from quarterly_report_parse_result import QuarterlyReportParseResult
 from llm_models import get_default_model
 from langchain.agents import create_agent
+from pathlib import Path
 
 parser_system_prompt = """
 You are a financial analyst.
@@ -36,8 +37,8 @@ parser_agent = create_agent(
     response_format=QuarterlyReportParseResult,
 )
 
-async def run_parser_table_by_table() -> QuarterlyReportParseResult:
-    pages = load_pdf_with_markdown_tables("sandbox/quarterly_report.pdf")
+async def run_parser_table_by_table(file_path: Path) -> QuarterlyReportParseResult:
+    pages = load_pdf_with_markdown_tables(file_path)
     quarter_info = await extract_quarter_info(pages)
     params = get_quarter_parsing_parameters(quarter_info)
     tables = await extract_tables_from_report(pages, params)

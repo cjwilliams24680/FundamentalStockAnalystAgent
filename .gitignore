@@ -9,6 +9,9 @@ dist/
 .venv/
 sandbox/
 
+# Playwright MCP session logs
+.playwright-mcp/
+
 # Tooling caches
 .pytest_cache/
 .mypy_cache/
