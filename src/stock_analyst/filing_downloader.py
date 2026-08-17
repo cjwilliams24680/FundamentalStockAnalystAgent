@@ -28,8 +28,6 @@ class QuarterlyReportFilingRow(BaseModel):
 @dataclass
 class DownloadedFiling:
     ticker: str
-    form_type: str
-    period_end_date: str
     file_path: Path
 
 
@@ -113,14 +111,12 @@ async def run_report_downloader(ticker: str) -> DownloadedFiling:
         raise RuntimeError("Agent finished without producing a structured filing row.")
 
     period_end_date_for_filename = filing_row.period_end_date.replace("/", "-")
-    file_name = f"{stock_info.ticker}_10-Q_ended_{period_end_date_for_filename}.pdf"
+    file_name = f"{stock_info.ticker}_{filing_row.form_type}_ended_{period_end_date_for_filename}.pdf"
     destination = DOWNLOAD_DIRECTORY / file_name
     download_filing(filing_row.download_link, destination)
     print(f"Saved {destination} ({destination.stat().st_size:,} bytes)")
 
     return DownloadedFiling(
         ticker=stock_info.ticker,
-        form_type=filing_row.form_type,
-        period_end_date=filing_row.period_end_date,
         file_path=destination,
     )

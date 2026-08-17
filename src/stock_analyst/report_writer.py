@@ -29,7 +29,7 @@ async def write_report(
 # {stock_info.name} ({stock_info.ticker})
 ## {datetime.now().strftime("%Y-%m-%d")}
 ## Model: {get_model_name()}
-## Filing: {downloaded_filing.form_type} ended {downloaded_filing.period_end_date}
+## Filing: {downloaded_filing.file_path.name}
 ---
 
 ## Summary
