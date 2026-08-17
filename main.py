@@ -7,12 +7,14 @@ from stock_directory import lookup
 from calculation_interpreter import interpret_all_calculations
 from report_writer import write_report
 from filing_downloader import DownloadedFiling
+from notes_taker import take_notes_on_filing
 
 async def main():
     input_ticker = input("Enter a ticker: ")
     stock_info = lookup(input_ticker)
     download_result = await run_report_downloader(input_ticker)
     parse_result = await run_parser_table_by_table(download_result.file_path)
+    notes = await take_notes_on_filing(download_result.file_path)
     calculated_metrics = run_all_calculations(
         stock_info=stock_info,
         parse_result=parse_result,
@@ -23,7 +25,7 @@ async def main():
         stock_info=stock_info,
         downloaded_filing=download_result,
         unusual_values=unusual_values,
-        commentary=[],
+        commentary=notes.risks + notes.opportunities + notes.upcoming_catalysts,
         parsed_values=parse_result,
     )
     save_report(report, download_result)
