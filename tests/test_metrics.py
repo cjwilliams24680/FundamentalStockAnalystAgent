@@ -322,14 +322,17 @@ def test_dupont_five_factor():
     assert result.interest_burden == approx(0.8)
     assert result.operating_income_margin == approx(0.2)
     assert result.return_on_equity == approx(0.12)  # 0.75 * 0.8 * 0.2 * 0.5 * 2
-    assert m.dupont_five_factor(
-        net_income=120,
-        pretax_income=-10,
-        earnings_before_interest_and_taxes=200,
-        revenue=1000,
-        average_total_assets=2000,
-        average_total_equity=1000,
-    ) is None
+    assert (
+        m.dupont_five_factor(
+            net_income=120,
+            pretax_income=-10,
+            earnings_before_interest_and_taxes=200,
+            revenue=1000,
+            average_total_assets=2000,
+            average_total_equity=1000,
+        )
+        is None
+    )
 
 
 # ---------------------------------------------------------------------------

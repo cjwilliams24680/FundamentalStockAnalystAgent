@@ -131,9 +131,7 @@ def run_all_calculations(
         operating_margin=metrics.operating_margin(
             parse_result.operating_income, parse_result.revenue
         ),
-        net_profit_margin=metrics.net_profit_margin(
-            parse_result.net_income, parse_result.revenue
-        ),
+        net_profit_margin=metrics.net_profit_margin(parse_result.net_income, parse_result.revenue),
         earnings_before_interest_taxes_depreciation_and_amortization_margin=(
             metrics.earnings_before_interest_taxes_depreciation_and_amortization_margin(
                 earnings_before_interest_taxes_depreciation_and_amortization,
@@ -193,9 +191,7 @@ def run_all_calculations(
         # ------------------------------------------------------------------
         # Cash flow - generation & quality
         # ------------------------------------------------------------------
-        free_cash_flow_margin=metrics.free_cash_flow_margin(
-            free_cash_flow, parse_result.revenue
-        ),
+        free_cash_flow_margin=metrics.free_cash_flow_margin(free_cash_flow, parse_result.revenue),
         operating_cash_flow_to_net_income=metrics.operating_cash_flow_to_net_income(
             parse_result.operating_cash_flow, parse_result.net_income
         ),
@@ -221,9 +217,7 @@ def run_all_calculations(
         # ------------------------------------------------------------------
         # Valuation
         # ------------------------------------------------------------------
-        price_to_earnings=metrics.price_to_earnings(
-            stock_info.market_cap, parse_result.net_income
-        ),
+        price_to_earnings=metrics.price_to_earnings(stock_info.market_cap, parse_result.net_income),
         earnings_yield=metrics.earnings_yield(parse_result.net_income, stock_info.market_cap),
         earnings_before_interest_and_taxes_to_enterprise_value=(
             metrics.earnings_before_interest_and_taxes_to_enterprise_value(
@@ -245,12 +239,8 @@ def run_all_calculations(
         enterprise_value_to_sales=metrics.enterprise_value_to_sales(
             enterprise_value, parse_result.revenue
         ),
-        free_cash_flow_yield=metrics.free_cash_flow_yield(
-            free_cash_flow, stock_info.market_cap
-        ),
-        dividend_yield=metrics.dividend_yield(
-            parse_result.dividends_paid, stock_info.market_cap
-        ),
+        free_cash_flow_yield=metrics.free_cash_flow_yield(free_cash_flow, stock_info.market_cap),
+        dividend_yield=metrics.dividend_yield(parse_result.dividends_paid, stock_info.market_cap),
         payout_ratio=payout_ratio,
         shareholder_yield=metrics.shareholder_yield(
             parse_result.dividends_paid,

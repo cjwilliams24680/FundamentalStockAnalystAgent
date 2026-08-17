@@ -77,15 +77,11 @@ def interpret_all_calculations(
         # ------------------------------------------------------------------
         # Cash flow - generation & quality
         # ------------------------------------------------------------------
-        interpretation.interpret_free_cash_flow_margin(
-            calculated_metrics.free_cash_flow_margin
-        ),
+        interpretation.interpret_free_cash_flow_margin(calculated_metrics.free_cash_flow_margin),
         interpretation.interpret_operating_cash_flow_to_net_income(
             calculated_metrics.operating_cash_flow_to_net_income
         ),
-        interpretation.interpret_sloan_accruals_ratio(
-            calculated_metrics.sloan_accruals_ratio
-        ),
+        interpretation.interpret_sloan_accruals_ratio(calculated_metrics.sloan_accruals_ratio),
         interpretation.interpret_free_cash_flow_conversion(
             calculated_metrics.free_cash_flow_conversion
         ),
@@ -127,9 +123,7 @@ def interpret_all_calculations(
         # ------------------------------------------------------------------
         interpretation.interpret_altman_z_score(calculated_metrics.altman_z_score),
         interpretation.interpret_altman_z_zone(calculated_metrics.altman_z_zone),
-        interpretation.interpret_altman_z_double_prime(
-            calculated_metrics.altman_z_double_prime
-        ),
+        interpretation.interpret_altman_z_double_prime(calculated_metrics.altman_z_double_prime),
         interpretation.interpret_altman_z_double_prime_zone(
             calculated_metrics.altman_z_double_prime_zone
         ),

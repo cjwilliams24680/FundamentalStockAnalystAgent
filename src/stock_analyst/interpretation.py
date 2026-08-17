@@ -355,10 +355,7 @@ def interpret_working_capital(value: float | None) -> CalculationInterpretation:
 def interpret_invested_capital(value: float | None) -> CalculationInterpretation:
     """Interpret interest-bearing debt plus shareholders' equity minus cash."""
     if value is None:
-        interpretation = (
-            "Not computed — debt, shareholders' equity, or cash was not"
-            " reported."
-        )
+        interpretation = "Not computed — debt, shareholders' equity, or cash was not reported."
         falls_outside_normal_range = False
     elif value <= 0.0:
         interpretation = (
@@ -609,8 +606,7 @@ def interpret_net_profit_margin(value: float | None) -> CalculationInterpretatio
         falls_outside_normal_range = False
     elif value < 0.0:
         interpretation = (
-            f"Net profit margin of {_as_percentage(value)} is negative — a"
-            " net loss for the period."
+            f"Net profit margin of {_as_percentage(value)} is negative — a net loss for the period."
         )
         falls_outside_normal_range = True
     elif value < 0.05:
@@ -620,15 +616,10 @@ def interpret_net_profit_margin(value: float | None) -> CalculationInterpretatio
         )
         falls_outside_normal_range = False
     elif value < 0.10:
-        interpretation = (
-            f"Net profit margin of {_as_percentage(value)} is about average"
-            " (5-10%)."
-        )
+        interpretation = f"Net profit margin of {_as_percentage(value)} is about average (5-10%)."
         falls_outside_normal_range = False
     elif value < 0.20:
-        interpretation = (
-            f"Net profit margin of {_as_percentage(value)} is good (10-20%)."
-        )
+        interpretation = f"Net profit margin of {_as_percentage(value)} is good (10-20%)."
         falls_outside_normal_range = False
     elif value < 0.30:
         interpretation = (
@@ -886,8 +877,7 @@ def interpret_defensive_interval_ratio(value: float | None) -> CalculationInterp
     """Interpret days the firm can operate on liquid assets with zero revenue."""
     if value is None:
         interpretation = (
-            "Not computed — liquid-asset balances or daily operating"
-            " expenses were unavailable."
+            "Not computed — liquid-asset balances or daily operating expenses were unavailable."
         )
         falls_outside_normal_range = False
     elif value < 30.0:
@@ -990,10 +980,7 @@ def interpret_debt_to_assets(value: float | None) -> CalculationInterpretation:
 def interpret_debt_to_capital(value: float | None) -> CalculationInterpretation:
     """Interpret total debt / (total debt + equity)."""
     if value is None:
-        interpretation = (
-            "Not computed — total debt or shareholders' equity was not"
-            " reported."
-        )
+        interpretation = "Not computed — total debt or shareholders' equity was not reported."
         falls_outside_normal_range = False
     elif value < 0.4:
         interpretation = (
@@ -1077,9 +1064,7 @@ def interpret_net_debt_to_earnings_before_interest_taxes_depreciation_and_amorti
         falls_outside_normal_range = True
     return CalculationInterpretation(
         raw_value=value,
-        field_name=(
-            "net_debt_to_earnings_before_interest_taxes_depreciation_and_amortization"
-        ),
+        field_name=("net_debt_to_earnings_before_interest_taxes_depreciation_and_amortization"),
         interpretation=interpretation,
         falls_outside_normal_range=falls_outside_normal_range,
     )
@@ -1392,10 +1377,7 @@ def interpret_capital_expenditure_intensity(
 ) -> CalculationInterpretation:
     """Interpret capital expenditures / revenue."""
     if value is None:
-        interpretation = (
-            "Not computed — capital expenditures or revenue was not"
-            " reported."
-        )
+        interpretation = "Not computed — capital expenditures or revenue was not reported."
         falls_outside_normal_range = False
     elif value < 0.0:
         interpretation = (
@@ -1440,8 +1422,7 @@ def interpret_capital_expenditures_to_depreciation(
     """Interpret capital expenditures / depreciation and amortization."""
     if value is None:
         interpretation = (
-            "Not computed — capital expenditures or depreciation and"
-            " amortization was not reported."
+            "Not computed — capital expenditures or depreciation and amortization was not reported."
         )
         falls_outside_normal_range = False
     elif value < 1.0:
@@ -2276,4 +2257,3 @@ def interpret_altman_z_double_prime_zone(value: str | None) -> CalculationInterp
         interpretation=interpretation,
         falls_outside_normal_range=falls_outside_normal_range,
     )
-

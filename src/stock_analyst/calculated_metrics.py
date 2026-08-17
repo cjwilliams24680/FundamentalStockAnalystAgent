@@ -320,14 +320,16 @@ class CalculatedMetrics(BaseModel):
             " meaningful for banks (interest is their core operating cost)."
         ),
     )
-    earnings_before_interest_taxes_depreciation_and_amortization_interest_coverage: float | None = Field(
-        default=None,
-        description=(
-            "EBITDA / interest expense — the more generous coverage variant"
-            " (adds back depreciation and amortization), so it runs above"
-            " the operating-income form by construction. Credit practice:"
-            " above 6 comfortable; 2-6 intermediate; below 2 stressed."
-        ),
+    earnings_before_interest_taxes_depreciation_and_amortization_interest_coverage: float | None = (
+        Field(
+            default=None,
+            description=(
+                "EBITDA / interest expense — the more generous coverage variant"
+                " (adds back depreciation and amortization), so it runs above"
+                " the operating-income form by construction. Credit practice:"
+                " above 6 comfortable; 2-6 intermediate; below 2 stressed."
+            ),
+        )
     )
     operating_cash_flow_to_debt: float | None = Field(
         default=None,
@@ -475,7 +477,9 @@ class CalculatedMetrics(BaseModel):
             " valued. Not for financials."
         ),
     )
-    enterprise_value_to_earnings_before_interest_taxes_depreciation_and_amortization: float | None = Field(
+    enterprise_value_to_earnings_before_interest_taxes_depreciation_and_amortization: (
+        float | None
+    ) = Field(
         default=None,
         description=(
             "Enterprise value / EBITDA — the standard operating multiple"
@@ -573,8 +577,7 @@ class CalculatedMetrics(BaseModel):
     altman_z_zone: str | None = Field(
         default=None,
         description=(
-            "Zone label for altman_z_score: 'safe' (> 2.99), 'grey', or"
-            " 'distress' (< 1.81)."
+            "Zone label for altman_z_score: 'safe' (> 2.99), 'grey', or 'distress' (< 1.81)."
         ),
     )
     altman_z_double_prime: float | None = Field(
@@ -588,7 +591,6 @@ class CalculatedMetrics(BaseModel):
     altman_z_double_prime_zone: str | None = Field(
         default=None,
         description=(
-            "Zone label for altman_z_double_prime: 'safe' (> 2.6), 'grey',"
-            " or 'distress' (< 1.1)."
+            "Zone label for altman_z_double_prime: 'safe' (> 2.6), 'grey', or 'distress' (< 1.1)."
         ),
     )

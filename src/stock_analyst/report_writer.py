@@ -1,18 +1,21 @@
-import asyncio
+from datetime import datetime
+
+from langchain.agents import create_agent
+
+from stock_analyst.calculation_interpreter import CalculationInterpretation
+from stock_analyst.filing_downloader import DownloadedFiling
+from stock_analyst.llm_models import get_default_model, get_model_name
 from stock_analyst.quarterly_report_parse_result import QuarterlyReportParseResult
 from stock_analyst.stock_directory import StockInfo
-from stock_analyst.calculation_interpreter import CalculationInterpretation
-from datetime import datetime
-from stock_analyst.llm_models import get_model_name
-from stock_analyst.filing_downloader import DownloadedFiling
-from stock_analyst.llm_models import get_default_model
-from langchain.agents import create_agent
 
 author_agent = create_agent(
     model=get_default_model(),
-    system_prompt="You are a financial analyst. You have been given information about a company's financial performance report. Your job is to summarize the report in a way that is easy to understand for a non-financial person.",
+    system_prompt="You are a financial analyst. You have been given information about "
+    "a company's financial performance report. Your job is to summarize the report "
+    "in a way that is easy to understand for a non-financial person.",
     response_format=str,
 )
+
 
 async def write_report(
     stock_info: StockInfo,
@@ -51,8 +54,13 @@ async def write_report(
 
 """
 
+
 def to_summary_string(interpretation: CalculationInterpretation) -> str:
-    return f"{interpretation.calculation_name}: {interpretation.value} ({interpretation.interpretation})"
+    return (
+        f"{interpretation.calculation_name}: {interpretation.value} "
+        f"({interpretation.interpretation})"
+    )
+
 
 async def summarize_unusual_values(
     unusual_values: list[CalculationInterpretation],
@@ -71,6 +79,7 @@ Add a few sentences of commentary at the end about the company's valuation and f
     result = await author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
     return result["structured_response"]
 
+
 async def summarize_commentary(
     commentary: list[str],
 ) -> str:
@@ -81,10 +90,12 @@ Here are some interesting insights from the report:
 {to_markdown_list(commentary)}
 
 Please summarize the insights concisely in one paragraph.
-Make sure to highlight any insights that could have a significant impact on the company's valuation and future performance.
+Make sure to highlight any insights that could have a significant impact
+on the company's valuation and future performance.
 """
     result = await author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
     return result["structured_response"]
+
 
 def to_markdown_list(items: list[str]) -> str:
     return "\n".join([f"- {item}" for item in items])

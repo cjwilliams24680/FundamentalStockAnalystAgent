@@ -61,9 +61,7 @@ def test_count_populated_fields():
     fully_filled = QuarterlyReportParseResult(
         **{field_name: 1.0 for field_name in QuarterlyReportParseResult.model_fields}
     )
-    assert count_populated_fields(fully_filled) == len(
-        QuarterlyReportParseResult.model_fields
-    )
+    assert count_populated_fields(fully_filled) == len(QuarterlyReportParseResult.model_fields)
 
 
 def test_get_diffs():

@@ -8,8 +8,7 @@ polished without breaking tests.
 
 import pytest
 
-from stock_analyst import interpretation
-from stock_analyst import metrics
+from stock_analyst import interpretation, metrics
 
 
 def test_raw_value_passes_through_unchanged():
@@ -32,12 +31,18 @@ def test_building_block_sign_flags():
         ).falls_outside_normal_range
         is True
     )
-    assert interpretation.interpret_net_debt(-100.0).falls_outside_normal_range is True  # net cash flags literally
+    assert (
+        interpretation.interpret_net_debt(-100.0).falls_outside_normal_range is True
+    )  # net cash flags literally
     assert interpretation.interpret_net_debt(100.0).falls_outside_normal_range is False
-    assert interpretation.interpret_working_capital(-100.0).falls_outside_normal_range is False  # normal for some retail
+    assert (
+        interpretation.interpret_working_capital(-100.0).falls_outside_normal_range is False
+    )  # normal for some retail
     assert interpretation.interpret_invested_capital(-5.0).falls_outside_normal_range is True
     assert interpretation.interpret_enterprise_value(-1000.0).falls_outside_normal_range is True
-    assert interpretation.interpret_total_debt(0.0).falls_outside_normal_range is False  # debt-free, unambiguous
+    assert (
+        interpretation.interpret_total_debt(0.0).falls_outside_normal_range is False
+    )  # debt-free, unambiguous
     assert interpretation.interpret_free_cash_flow(-25.0).falls_outside_normal_range is True
 
 
@@ -55,10 +60,14 @@ def test_effective_tax_rate_bands():
 def test_margin_bands():
     assert interpretation.interpret_operating_margin(-0.05).falls_outside_normal_range is True
     assert interpretation.interpret_operating_margin(0.15).falls_outside_normal_range is False
-    assert interpretation.interpret_operating_margin(0.45).falls_outside_normal_range is True  # too good — verify
+    assert (
+        interpretation.interpret_operating_margin(0.45).falls_outside_normal_range is True
+    )  # too good — verify
     assert interpretation.interpret_net_profit_margin(0.08).falls_outside_normal_range is False
     assert interpretation.interpret_net_profit_margin(0.35).falls_outside_normal_range is True
-    assert interpretation.interpret_gross_profit_margin(0.80).falls_outside_normal_range is False  # software-normal
+    assert (
+        interpretation.interpret_gross_profit_margin(0.80).falls_outside_normal_range is False
+    )  # software-normal
     assert interpretation.interpret_gross_profit_margin(0.95).falls_outside_normal_range is True
     assert (
         interpretation.interpret_earnings_before_interest_taxes_depreciation_and_amortization_margin(
@@ -76,15 +85,27 @@ def test_margin_bands():
 def test_liquidity_bands():
     assert interpretation.interpret_current_ratio(0.8).falls_outside_normal_range is True
     assert interpretation.interpret_current_ratio(2.2).falls_outside_normal_range is False
-    assert interpretation.interpret_current_ratio(4.0).falls_outside_normal_range is True  # lazy capital
+    assert (
+        interpretation.interpret_current_ratio(4.0).falls_outside_normal_range is True
+    )  # lazy capital
     assert interpretation.interpret_quick_ratio(0.7).falls_outside_normal_range is True
     assert interpretation.interpret_quick_ratio(1.3).falls_outside_normal_range is False
     assert interpretation.interpret_cash_ratio(0.3).falls_outside_normal_range is False
-    assert interpretation.interpret_cash_ratio(1.5).falls_outside_normal_range is True  # idle-cash hoard
-    assert interpretation.interpret_operating_cash_flow_ratio(-0.2).falls_outside_normal_range is True
-    assert interpretation.interpret_operating_cash_flow_ratio(0.6).falls_outside_normal_range is False
-    assert interpretation.interpret_defensive_interval_ratio(20.0).falls_outside_normal_range is True
-    assert interpretation.interpret_defensive_interval_ratio(120.0).falls_outside_normal_range is False
+    assert (
+        interpretation.interpret_cash_ratio(1.5).falls_outside_normal_range is True
+    )  # idle-cash hoard
+    assert (
+        interpretation.interpret_operating_cash_flow_ratio(-0.2).falls_outside_normal_range is True
+    )
+    assert (
+        interpretation.interpret_operating_cash_flow_ratio(0.6).falls_outside_normal_range is False
+    )
+    assert (
+        interpretation.interpret_defensive_interval_ratio(20.0).falls_outside_normal_range is True
+    )
+    assert (
+        interpretation.interpret_defensive_interval_ratio(120.0).falls_outside_normal_range is False
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -99,21 +120,23 @@ def test_solvency_and_leverage_bands():
     assert interpretation.interpret_debt_to_assets(0.7).falls_outside_normal_range is True
     assert interpretation.interpret_debt_to_capital(0.5).falls_outside_normal_range is False
     assert interpretation.interpret_debt_to_capital(0.7).falls_outside_normal_range is True
-    net_debt_to_ebitda = (
-        interpretation.interpret_net_debt_to_earnings_before_interest_taxes_depreciation_and_amortization
-    )
+    net_debt_to_ebitda = interpretation.interpret_net_debt_to_earnings_before_interest_taxes_depreciation_and_amortization  # noqa: E501 -- unsplittable spelled-out identifier
     assert net_debt_to_ebitda(-0.5).falls_outside_normal_range is True  # net cash flags literally
     assert net_debt_to_ebitda(2.0).falls_outside_normal_range is False
     assert net_debt_to_ebitda(4.5).falls_outside_normal_range is True
     assert interpretation.interpret_interest_coverage(1.0).falls_outside_normal_range is True
     assert interpretation.interpret_interest_coverage(6.0).falls_outside_normal_range is False
-    ebitda_coverage = (
-        interpretation.interpret_earnings_before_interest_taxes_depreciation_and_amortization_interest_coverage
-    )
+    ebitda_coverage = interpretation.interpret_earnings_before_interest_taxes_depreciation_and_amortization_interest_coverage  # noqa: E501 -- unsplittable spelled-out identifier
     assert ebitda_coverage(1.5).falls_outside_normal_range is True
     assert ebitda_coverage(8.0).falls_outside_normal_range is False
-    assert interpretation.interpret_operating_cash_flow_to_debt(0.5).falls_outside_normal_range is False
-    assert interpretation.interpret_operating_cash_flow_to_debt(-0.1).falls_outside_normal_range is True
+    assert (
+        interpretation.interpret_operating_cash_flow_to_debt(0.5).falls_outside_normal_range
+        is False
+    )
+    assert (
+        interpretation.interpret_operating_cash_flow_to_debt(-0.1).falls_outside_normal_range
+        is True
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -124,17 +147,43 @@ def test_solvency_and_leverage_bands():
 def test_cash_flow_bands():
     assert interpretation.interpret_free_cash_flow_margin(-0.05).falls_outside_normal_range is True
     assert interpretation.interpret_free_cash_flow_margin(0.12).falls_outside_normal_range is False
-    assert interpretation.interpret_operating_cash_flow_to_net_income(0.7).falls_outside_normal_range is True
-    assert interpretation.interpret_operating_cash_flow_to_net_income(1.3).falls_outside_normal_range is False
+    assert (
+        interpretation.interpret_operating_cash_flow_to_net_income(0.7).falls_outside_normal_range
+        is True
+    )
+    assert (
+        interpretation.interpret_operating_cash_flow_to_net_income(1.3).falls_outside_normal_range
+        is False
+    )
     assert interpretation.interpret_sloan_accruals_ratio(0.05).falls_outside_normal_range is False
     assert interpretation.interpret_sloan_accruals_ratio(0.30).falls_outside_normal_range is True
     assert interpretation.interpret_sloan_accruals_ratio(-0.20).falls_outside_normal_range is True
-    assert interpretation.interpret_free_cash_flow_conversion(0.9).falls_outside_normal_range is False
-    assert interpretation.interpret_free_cash_flow_conversion(1.4).falls_outside_normal_range is True  # temporary benefit
-    assert interpretation.interpret_capital_expenditure_intensity(0.03).falls_outside_normal_range is False
-    assert interpretation.interpret_capital_expenditure_intensity(0.20).falls_outside_normal_range is True
-    assert interpretation.interpret_capital_expenditures_to_depreciation(0.6).falls_outside_normal_range is True
-    assert interpretation.interpret_capital_expenditures_to_depreciation(1.2).falls_outside_normal_range is False
+    assert (
+        interpretation.interpret_free_cash_flow_conversion(0.9).falls_outside_normal_range is False
+    )
+    assert (
+        interpretation.interpret_free_cash_flow_conversion(1.4).falls_outside_normal_range is True
+    )  # temporary benefit
+    assert (
+        interpretation.interpret_capital_expenditure_intensity(0.03).falls_outside_normal_range
+        is False
+    )
+    assert (
+        interpretation.interpret_capital_expenditure_intensity(0.20).falls_outside_normal_range
+        is True
+    )
+    assert (
+        interpretation.interpret_capital_expenditures_to_depreciation(
+            0.6
+        ).falls_outside_normal_range
+        is True
+    )
+    assert (
+        interpretation.interpret_capital_expenditures_to_depreciation(
+            1.2
+        ).falls_outside_normal_range
+        is False
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -143,7 +192,9 @@ def test_cash_flow_bands():
 
 
 def test_retention_rate_bands():
-    assert interpretation.interpret_retention_rate(-0.1).falls_outside_normal_range is True  # payout above earnings
+    assert (
+        interpretation.interpret_retention_rate(-0.1).falls_outside_normal_range is True
+    )  # payout above earnings
     assert interpretation.interpret_retention_rate(0.5).falls_outside_normal_range is False
     assert interpretation.interpret_retention_rate(1.0).falls_outside_normal_range is False
 
@@ -169,9 +220,7 @@ def test_valuation_bands():
     assert interpretation.interpret_price_to_book(2.5).falls_outside_normal_range is False
     assert interpretation.interpret_price_to_sales(1.5).falls_outside_normal_range is False
     assert interpretation.interpret_price_to_sales(12.0).falls_outside_normal_range is True
-    enterprise_value_to_ebitda = (
-        interpretation.interpret_enterprise_value_to_earnings_before_interest_taxes_depreciation_and_amortization
-    )
+    enterprise_value_to_ebitda = interpretation.interpret_enterprise_value_to_earnings_before_interest_taxes_depreciation_and_amortization  # noqa: E501 -- unsplittable spelled-out identifier
     assert enterprise_value_to_ebitda(10.0).falls_outside_normal_range is False
     assert enterprise_value_to_ebitda(4.0).falls_outside_normal_range is True
     assert enterprise_value_to_ebitda(18.0).falls_outside_normal_range is True
@@ -181,17 +230,27 @@ def test_valuation_bands():
         ).falls_outside_normal_range
         is False
     )
-    assert interpretation.interpret_enterprise_value_to_sales(2.0).falls_outside_normal_range is False
-    assert interpretation.interpret_enterprise_value_to_sales(11.0).falls_outside_normal_range is True
+    assert (
+        interpretation.interpret_enterprise_value_to_sales(2.0).falls_outside_normal_range is False
+    )
+    assert (
+        interpretation.interpret_enterprise_value_to_sales(11.0).falls_outside_normal_range is True
+    )
     assert interpretation.interpret_free_cash_flow_yield(0.05).falls_outside_normal_range is False
     assert interpretation.interpret_free_cash_flow_yield(0.01).falls_outside_normal_range is True
     assert interpretation.interpret_free_cash_flow_yield(0.10).falls_outside_normal_range is True
-    assert interpretation.interpret_dividend_yield(0.0).falls_outside_normal_range is False  # no dividend, uninformative
+    assert (
+        interpretation.interpret_dividend_yield(0.0).falls_outside_normal_range is False
+    )  # no dividend, uninformative
     assert interpretation.interpret_dividend_yield(0.03).falls_outside_normal_range is False
-    assert interpretation.interpret_dividend_yield(0.09).falls_outside_normal_range is True  # pricing a cut
+    assert (
+        interpretation.interpret_dividend_yield(0.09).falls_outside_normal_range is True
+    )  # pricing a cut
     assert interpretation.interpret_payout_ratio(0.45).falls_outside_normal_range is False
     assert interpretation.interpret_payout_ratio(1.2).falls_outside_normal_range is True
-    assert interpretation.interpret_shareholder_yield(-0.01).falls_outside_normal_range is True  # net issuer
+    assert (
+        interpretation.interpret_shareholder_yield(-0.01).falls_outside_normal_range is True
+    )  # net issuer
     assert interpretation.interpret_shareholder_yield(0.03).falls_outside_normal_range is False
 
 
@@ -218,7 +277,7 @@ def test_none_that_points_at_sibling_metric():
     )
     assert (
         "enterprise_value_to_sales"
-        in interpretation.interpret_enterprise_value_to_earnings_before_interest_taxes_depreciation_and_amortization(
+        in interpretation.interpret_enterprise_value_to_earnings_before_interest_taxes_depreciation_and_amortization(  # noqa: E501 -- unsplittable spelled-out identifier
             None
         ).interpretation
     )
@@ -231,7 +290,9 @@ def test_none_that_points_at_sibling_metric():
 
 def test_altman_score_bands():
     assert interpretation.interpret_altman_z_score(1.0).falls_outside_normal_range is True
-    assert interpretation.interpret_altman_z_score(2.5).falls_outside_normal_range is True  # grey zone flags
+    assert (
+        interpretation.interpret_altman_z_score(2.5).falls_outside_normal_range is True
+    )  # grey zone flags
     assert interpretation.interpret_altman_z_score(3.5).falls_outside_normal_range is False
     assert interpretation.interpret_altman_z_double_prime(0.5).falls_outside_normal_range is True
     assert interpretation.interpret_altman_z_double_prime(2.0).falls_outside_normal_range is True

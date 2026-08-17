@@ -77,7 +77,9 @@ def earnings_before_interest_taxes_depreciation_and_amortization(
     return operating_income + depreciation_and_amortization
 
 
-def effective_tax_rate(income_tax_expense: float | None, pretax_income: float | None) -> float | None:
+def effective_tax_rate(
+    income_tax_expense: float | None, pretax_income: float | None
+) -> float | None:
     """Income tax expense / pretax income; None when pretax income <= 0."""
     if not _present(income_tax_expense, pretax_income) or pretax_income <= 0:
         return None
@@ -116,7 +118,9 @@ def net_debt(
     return total_debt - cash_and_equivalents - marketable_securities
 
 
-def working_capital(current_assets: float | None, current_liabilities: float | None) -> float | None:
+def working_capital(
+    current_assets: float | None, current_liabilities: float | None
+) -> float | None:
     if not _present(current_assets, current_liabilities):
         return None
     return current_assets - current_liabilities
@@ -165,7 +169,9 @@ def enterprise_value(
     )
 
 
-def free_cash_flow(operating_cash_flow: float | None, capital_expenditures: float | None) -> float | None:
+def free_cash_flow(
+    operating_cash_flow: float | None, capital_expenditures: float | None
+) -> float | None:
     """Cash flow from operations minus capital expenditures."""
     if not _present(operating_cash_flow, capital_expenditures):
         return None
@@ -205,7 +211,9 @@ def earnings_before_interest_taxes_depreciation_and_amortization_margin(
     return _safe_divide(earnings_before_interest_taxes_depreciation_and_amortization, revenue)
 
 
-def return_on_equity(net_income: float | None, average_shareholders_equity: float | None) -> float | None:
+def return_on_equity(
+    net_income: float | None, average_shareholders_equity: float | None
+) -> float | None:
     """None when average equity <= 0 (return on equity is meaningless with
     negative book equity - fall back to return on invested capital)."""
     if average_shareholders_equity is not None and average_shareholders_equity <= 0:
@@ -240,13 +248,17 @@ def total_asset_turnover(revenue: float | None, average_total_assets: float | No
     return _safe_divide(revenue, average_total_assets)
 
 
-def fixed_asset_turnover(revenue: float | None, average_net_fixed_assets: float | None) -> float | None:
+def fixed_asset_turnover(
+    revenue: float | None, average_net_fixed_assets: float | None
+) -> float | None:
     if average_net_fixed_assets is not None and average_net_fixed_assets <= 0:
         return None
     return _safe_divide(revenue, average_net_fixed_assets)
 
 
-def working_capital_turnover(revenue: float | None, average_working_capital: float | None) -> float | None:
+def working_capital_turnover(
+    revenue: float | None, average_working_capital: float | None
+) -> float | None:
     """None when average working capital <= 0 (CFA: uninterpretable there)."""
     if average_working_capital is not None and average_working_capital <= 0:
         return None
@@ -264,7 +276,9 @@ def days_inventory_on_hand(
     return DAYS_PER_YEAR / (cost_of_goods_sold / average_inventory)
 
 
-def days_sales_outstanding(revenue: float | None, average_receivables: float | None) -> float | None:
+def days_sales_outstanding(
+    revenue: float | None, average_receivables: float | None
+) -> float | None:
     if not _present(revenue, average_receivables) or revenue <= 0 or average_receivables <= 0:
         return None
     return DAYS_PER_YEAR / (revenue / average_receivables)
@@ -277,7 +291,9 @@ def purchases(cost_of_goods_sold: float | None, inventory_change: float | None) 
     return cost_of_goods_sold + inventory_change
 
 
-def days_payables_outstanding(purchases: float | None, average_payables: float | None) -> float | None:
+def days_payables_outstanding(
+    purchases: float | None, average_payables: float | None
+) -> float | None:
     """Pass cost of goods sold as the accepted fallback when purchases can't
     be derived."""
     if not _present(purchases, average_payables) or purchases <= 0 or average_payables <= 0:
@@ -352,8 +368,13 @@ def defensive_interval_ratio(
     non_cash_charges: float | None,
 ) -> float | None:
     """Days the firm can operate on liquid assets with zero revenue."""
-    if not _present(cash_and_equivalents, short_term_investments, receivables,
-                    operating_expenses, non_cash_charges):
+    if not _present(
+        cash_and_equivalents,
+        short_term_investments,
+        receivables,
+        operating_expenses,
+        non_cash_charges,
+    ):
         return None
     daily_expenditures = (operating_expenses - non_cash_charges) / DAYS_PER_YEAR
     if daily_expenditures <= 0:
@@ -786,9 +807,7 @@ def piotroski_f_score(
     )
 
     asset_turnover_current = _scaled_by_beginning_assets(revenue, beginning_total_assets)
-    asset_turnover_prior = _scaled_by_beginning_assets(
-        revenue_prior, beginning_total_assets_prior
-    )
+    asset_turnover_prior = _scaled_by_beginning_assets(revenue_prior, beginning_total_assets_prior)
 
     def _increased(current: float | None, prior: float | None) -> bool | None:
         return None if not _present(current, prior) else current > prior
@@ -1046,9 +1065,11 @@ def beneish_m_score(current: BeneishPeriod, prior: BeneishPeriod) -> BeneishResu
     def _soft_assets(period: BeneishPeriod) -> float | None:
         if period.total_assets == 0:
             return None
-        return 1 - (
-            period.current_assets + period.net_property_plant_and_equipment
-        ) / period.total_assets
+        return (
+            1
+            - (period.current_assets + period.net_property_plant_and_equipment)
+            / period.total_assets
+        )
 
     def _depreciation_rate(period: BeneishPeriod) -> float | None:
         return _ratio(

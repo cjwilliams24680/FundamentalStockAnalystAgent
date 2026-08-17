@@ -35,7 +35,28 @@ packages = ["src/stock_analyst"]
 dev = [
     "jupyter>=1.1.1",
     "pytest>=9.1.1",
+    "ruff>=0.16.3",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import ordering)
+    "UP",  # pyupgrade (modern syntax)
+    "B",   # flake8-bugbear (likely-bug patterns)
+    "SIM", # flake8-simplify
+    "RUF", # ruff-native rules
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Imports mid-notebook are normal in exploratory cells.
+"*.ipynb" = ["E402"]

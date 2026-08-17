@@ -15,6 +15,8 @@ uv sync                                            # install deps (incl. dev gro
 uv run pytest                                      # run all tests
 uv run pytest tests/test_metrics.py                # one file
 uv run pytest tests/test_metrics.py::test_name     # one test
+uv run ruff check                                  # lint (add --fix to auto-fix); config in pyproject.toml
+uv run ruff format                                 # format (line length 100; also formats the notebook)
 uv run analyze                                     # run the full pipeline (prompts for a ticker)
 uv run build-directory                             # rebuild data/stock_directory.json (network)
 ```

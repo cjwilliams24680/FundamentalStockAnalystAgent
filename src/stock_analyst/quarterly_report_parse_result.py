@@ -50,9 +50,7 @@ class QuarterlyReportParseResult(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    def merge(
-        self, other: "QuarterlyReportParseResult"
-    ) -> "QuarterlyReportParseResult":
+    def merge(self, other: "QuarterlyReportParseResult") -> "QuarterlyReportParseResult":
         """Combine two parse results, preferring this instance's values.
 
         For each field, uses this instance's value when it is not ``None``,
@@ -343,9 +341,7 @@ class QuarterlyReportParseResult(BaseModel):
     )
     current_assets: float | None = Field(
         default=None,
-        description=(
-            "Balance sheet subtotal. Labeled 'Total current assets'."
-        ),
+        description=("Balance sheet subtotal. Labeled 'Total current assets'."),
     )
     # Feeds ``average_net_fixed_assets`` (via metrics.average) and
     # BeneishPeriod.net_property_plant_and_equipment.
@@ -402,9 +398,7 @@ class QuarterlyReportParseResult(BaseModel):
     )
     current_liabilities: float | None = Field(
         default=None,
-        description=(
-            "Balance sheet subtotal. Labeled 'Total current liabilities'."
-        ),
+        description=("Balance sheet subtotal. Labeled 'Total current liabilities'."),
     )
     # altman_z_score / altman_z_double_prime input.
     total_liabilities: float | None = Field(
@@ -456,9 +450,7 @@ class QuarterlyReportParseResult(BaseModel):
     )
 
 
-def get_diffs(
-    first: QuarterlyReportParseResult, second: QuarterlyReportParseResult
-) -> list[str]:
+def get_diffs(first: QuarterlyReportParseResult, second: QuarterlyReportParseResult) -> list[str]:
     """Describe every field whose value differs between ``first`` and
     ``second``, one string per differing field. Equal instances yield an
     empty list."""

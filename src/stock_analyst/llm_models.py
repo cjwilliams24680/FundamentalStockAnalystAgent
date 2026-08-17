@@ -1,9 +1,11 @@
+import os
+
+from dotenv import load_dotenv
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
-import os
-from dotenv import load_dotenv
 
 load_dotenv(override=True)
+
 
 def get_default_model(use_local_llm: bool | None = None):
     if use_local_llm is None:
@@ -17,8 +19,10 @@ def get_default_model(use_local_llm: bool | None = None):
         # Chat Completions endpoint; the Responses API supports both.
         return ChatOpenAI(model="gpt-5.6-luna", use_responses_api=True)
 
+
 def get_high_effort_model():
     return ChatOpenAI(model="gpt-5.6-sol", use_responses_api=True)
+
 
 def get_model_name() -> str:
     model = get_default_model()

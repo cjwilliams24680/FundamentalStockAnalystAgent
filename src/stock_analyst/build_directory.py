@@ -12,7 +12,7 @@ import os
 import sys
 import tempfile
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -91,8 +91,10 @@ def build_directory() -> dict:
         for row in rows:
             ticker = normalize_ticker(row["symbol"])
             if ticker in stocks:
-                print(f"  duplicate ticker {ticker}: keeping "
-                      f"{stocks[ticker]['exchange']}, ignoring {exchange}")
+                print(
+                    f"  duplicate ticker {ticker}: keeping "
+                    f"{stocks[ticker]['exchange']}, ignoring {exchange}"
+                )
                 continue
             stocks[ticker] = {
                 "name": row.get("name") or None,
@@ -114,7 +116,7 @@ def build_directory() -> dict:
 
     return {
         "metadata": {
-            "built_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
             "source": "nasdaq-screener",
             "counts": counts,
         },
@@ -143,8 +145,10 @@ def main() -> int:
         return 1
     write_atomic(directory, OUTPUT_PATH)
     counts = directory["metadata"]["counts"]
-    print(f"Wrote {counts['total']} tickers to {OUTPUT_PATH} "
-          f"({', '.join(f'{k}: {v}' for k, v in counts.items() if k != 'total')})")
+    print(
+        f"Wrote {counts['total']} tickers to {OUTPUT_PATH} "
+        f"({', '.join(f'{k}: {v}' for k, v in counts.items() if k != 'total')})"
+    )
     return 0
 
 

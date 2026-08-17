@@ -1,4 +1,4 @@
-import asyncio
+from dataclasses import dataclass
 from pathlib import Path
 
 import requests
@@ -7,12 +7,11 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from pydantic import BaseModel, Field
 
 from stock_analyst.llm_models import get_high_effort_model
-from stock_analyst.stock_directory import lookup
-from stock_analyst.stock_directory import StockInfo
 from stock_analyst.paths import SANDBOX_DIRECTORY
-from dataclasses import dataclass
+from stock_analyst.stock_directory import StockInfo, lookup
 
 DOWNLOAD_DIRECTORY = SANDBOX_DIRECTORY
+
 
 class QuarterlyReportFilingRow(BaseModel):
     """One row of Nasdaq's SEC-filings table, for the most recent 10-Q filing."""
@@ -25,12 +24,14 @@ class QuarterlyReportFilingRow(BaseModel):
         description="The full href of the 'PDF' link in the row's View column."
     )
 
+
 @dataclass
 class DownloadedFiling:
     ticker: str
     form_type: str
     period_end_date: str
     file_path: Path
+
 
 def _get_web_crawling_instructions(stock_info: StockInfo) -> str:
     # Nasdaq actually lists 10Qs for NYSE stocks too, so I can use the same instructions for both.
@@ -41,13 +42,15 @@ You'll see a list of SEC forms.
 
 You should see the following columns: Company Name, Form Type, Filed, Period, View.
 
-Find the first row in the table that has a Form Type of "10-Q" or "10-K". You may need to scroll down or click the "Next" button to see another page.
+Find the first row in the table that has a Form Type of "10-Q" or "10-K".
+You may need to scroll down or click the "Next" button to see another page.
 
 From that row's View column, read the href attribute of the "PDF" link. Do NOT click the
 link -- clicking opens a new tab and no download event fires. Just extract the href.
 
 Return the information from that row, including the PDF link's href.
 """
+
 
 def download_filing(download_link: str, destination: Path) -> None:
     """Fetch the filing's href directly over HTTP.
@@ -68,14 +71,17 @@ def download_filing(download_link: str, destination: Path) -> None:
         )
     destination.write_bytes(response.content)
 
+
 async def run_report_downloader(ticker: str) -> DownloadedFiling:
-    client = MultiServerMCPClient({
-        "playwright": {
-            "transport": "stdio",
-            "command": "npx",
-            "args": ["-y", "@playwright/mcp@latest", "--isolated"],
+    client = MultiServerMCPClient(
+        {
+            "playwright": {
+                "transport": "stdio",
+                "command": "npx",
+                "args": ["-y", "@playwright/mcp@latest", "--isolated"],
+            }
         }
-    })
+    )
 
     browser_tools = await client.get_tools()
 
@@ -84,7 +90,8 @@ async def run_report_downloader(ticker: str) -> DownloadedFiling:
     browser_agent = create_agent(
         model=model,
         tools=browser_tools,
-        system_prompt="You are a web research assistant. Use the browser tools to locate the requested 10Q filing.",
+        system_prompt="You are a web research assistant. "
+        "Use the browser tools to locate the requested 10Q filing.",
         response_format=QuarterlyReportFilingRow,
     )
 
