@@ -34,7 +34,7 @@ notes_taker_agent = create_agent(
 )
 
 
-async def take_notes_on_filing(file_path: Path) -> list[str]:
+async def take_notes_on_filing(file_path: Path) -> Notes:
     pages = load_pdf_with_markdown_tables(file_path)
     notes = Notes(
         risks=[],
