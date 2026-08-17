@@ -13,7 +13,6 @@ author_agent = create_agent(
     system_prompt="You are a financial analyst. You have been given information about "
     "a company's financial performance report. Your job is to summarize the report "
     "in a way that is easy to understand for a non-financial person.",
-    response_format=str,
 )
 
 
@@ -77,7 +76,7 @@ Please summarize the unusual values concisely in one paragraph.
 Add a few sentences of commentary at the end about the company's valuation and future performance
 """
     result = await author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
-    return result["structured_response"]
+    return result["messages"][-1].text
 
 
 async def summarize_commentary(
@@ -94,7 +93,7 @@ Make sure to highlight any insights that could have a significant impact
 on the company's valuation and future performance.
 """
     result = await author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
-    return result["structured_response"]
+    return result["messages"][-1].text
 
 
 def to_markdown_list(items: list[str]) -> str:

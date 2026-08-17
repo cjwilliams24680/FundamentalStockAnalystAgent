@@ -99,7 +99,7 @@ async def run_report_downloader(ticker: str) -> DownloadedFiling:
     # agent works, instead of only the final answer.
     final_state = None
     async for chunk in browser_agent.astream(
-        {"messages": [{"role": "user", "content": _get_web_crawling_instructions()}]},
+        {"messages": [{"role": "user", "content": _get_web_crawling_instructions(stock_info)}]},
         config={"recursion_limit": 50},
         stream_mode="values",
     ):
@@ -111,7 +111,9 @@ async def run_report_downloader(ticker: str) -> DownloadedFiling:
         raise RuntimeError("Agent finished without producing a structured filing row.")
 
     period_end_date_for_filename = filing_row.period_end_date.replace("/", "-")
-    file_name = f"{stock_info.ticker}_{filing_row.form_type}_ended_{period_end_date_for_filename}.pdf"
+    file_name = (
+        f"{stock_info.ticker}_{filing_row.form_type}_ended_{period_end_date_for_filename}.pdf"
+    )
     destination = DOWNLOAD_DIRECTORY / file_name
     download_filing(filing_row.download_link, destination)
     print(f"Saved {destination} ({destination.stat().st_size:,} bytes)")
