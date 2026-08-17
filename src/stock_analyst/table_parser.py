@@ -2,9 +2,9 @@
 
 import re
 from pydantic import BaseModel, Field
-from llm_models import get_default_model
+from stock_analyst.llm_models import get_default_model
 from langchain.agents import create_agent
-from date_parser import QuarterParsingParameters
+from stock_analyst.date_parser import QuarterParsingParameters
 import asyncio
 
 _PARENTHESIZED_NUMBER_PATTERN = re.compile(r"\((\d[\d,]*(?:\.\d+)?)\)")

@@ -1,6 +1,6 @@
-"""Tests for table_parsing.py."""
+"""Tests for table_parser.py."""
 
-from table_parsing import (
+from stock_analyst.table_parser import (
     replace_dash_only_table_cells_with_zero_values,
     replace_parenthesized_numbers_with_negative_values,
 )

@@ -1,5 +1,6 @@
 # Python
 __pycache__/
+src/stock_analyst/__init__.py
 *.py[cod]
 *.egg-info/
 build/
@@ -8,6 +9,9 @@ dist/
 # Virtual environments
 .venv/
 sandbox/
+
+# Generated reports
+output/
 
 # Playwright MCP session logs
 .playwright-mcp/

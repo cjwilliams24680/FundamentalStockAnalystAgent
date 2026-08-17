@@ -1,13 +1,14 @@
-from filing_downloader import run_report_downloader
-from document_parser import run_parser_table_by_table
+from stock_analyst.filing_downloader import run_report_downloader
+from stock_analyst.document_parser import run_parser_table_by_table
 import asyncio
 
-from run_all_calculations import run_all_calculations
-from stock_directory import lookup
-from calculation_interpreter import interpret_all_calculations
-from report_writer import write_report
-from filing_downloader import DownloadedFiling
-from notes_taker import take_notes_on_filing
+from stock_analyst.run_all_calculations import run_all_calculations
+from stock_analyst.stock_directory import lookup
+from stock_analyst.calculation_interpreter import interpret_all_calculations
+from stock_analyst.report_writer import write_report
+from stock_analyst.filing_downloader import DownloadedFiling
+from stock_analyst.notes_taker import take_notes_on_filing
+from stock_analyst.paths import OUTPUT_DIRECTORY
 
 async def main():
     input_ticker = input("Enter a ticker: ")
@@ -31,8 +32,13 @@ async def main():
     save_report(report, download_result)
 
 def save_report(report: str, downloaded_filing: DownloadedFiling) -> None:
-    with open(f"output/{downloaded_filing.ticker}_{downloaded_filing.form_type}_{downloaded_filing.period_end_date}.md", "w", encoding="utf-8") as file:
+    OUTPUT_DIRECTORY.mkdir(parents=True, exist_ok=True)
+    report_path = OUTPUT_DIRECTORY / f"{downloaded_filing.ticker}_{downloaded_filing.form_type}_{downloaded_filing.period_end_date}.md"
+    with open(report_path, "w", encoding="utf-8") as file:
         file.write(report)
 
-if __name__ == "__main__":
+def run() -> None:
     asyncio.run(main())
+
+if __name__ == "__main__":
+    run()

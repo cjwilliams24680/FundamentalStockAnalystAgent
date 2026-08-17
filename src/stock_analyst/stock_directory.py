@@ -8,7 +8,9 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-DEFAULT_PATH = Path(__file__).parent / "data" / "stock_directory.json"
+from stock_analyst.paths import DATA_DIRECTORY
+
+DEFAULT_PATH = DATA_DIRECTORY / "stock_directory.json"
 
 _directory: dict | None = None
 

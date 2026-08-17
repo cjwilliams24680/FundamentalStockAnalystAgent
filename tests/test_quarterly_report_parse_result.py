@@ -1,6 +1,6 @@
 """Tests for quarterly_report_parse_result.py."""
 
-from quarterly_report_parse_result import (
+from stock_analyst.quarterly_report_parse_result import (
     QuarterlyReportParseResult,
     count_populated_fields,
     get_diffs,

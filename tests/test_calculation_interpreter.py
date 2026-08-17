@@ -1,8 +1,8 @@
 """Tests for calculation_interpreter.py."""
 
-import metrics
-from calculated_metrics import CalculatedMetrics
-from calculation_interpreter import interpret_all_calculations
+from stock_analyst import metrics
+from stock_analyst.calculated_metrics import CalculatedMetrics
+from stock_analyst.calculation_interpreter import interpret_all_calculations
 
 _ZONE_FIELDS = {"altman_z_zone", "altman_z_double_prime_zone"}
 

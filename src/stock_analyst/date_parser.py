@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pydantic import BaseModel, Field
-from llm_models import get_default_model
+from stock_analyst.llm_models import get_default_model
 from langchain.agents import create_agent
 
 class DateOfReport(BaseModel):

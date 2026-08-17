@@ -9,7 +9,7 @@ sourcing.
 
 ## 1. What was built
 
-- **`metrics.py`** (repo root) — pure calculation functions for every metric in the
+- **`metrics.py`** (`src/stock_analyst/`) — pure calculation functions for every metric in the
   reference doc: all seven pillars plus the four composite scores. One function per
   metric, plus shared building blocks.
 - **`tests/test_metrics.py`** — 23 tests covering every function against

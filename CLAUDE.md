@@ -15,10 +15,11 @@ uv sync                                            # install deps (incl. dev gro
 uv run pytest                                      # run all tests
 uv run pytest tests/test_metrics.py                # one file
 uv run pytest tests/test_metrics.py::test_name     # one test
-uv run python build_directory.py                   # rebuild data/stock_directory.json (network)
+uv run analyze                                     # run the full pipeline (prompts for a ticker)
+uv run build-directory                             # rebuild data/stock_directory.json (network)
 ```
 
-`pyproject.toml` sets `pythonpath = ["."]` for pytest, so the flat repo layout imports during collection.
+The code lives in a src layout: `src/stock_analyst/` is the package, installed editable by `uv sync` (hatchling build backend), so `from stock_analyst import metrics` works everywhere — tests, notebook, and the `analyze`/`build-directory` console scripts defined in `[project.scripts]`. Repo-anchored filesystem locations (`data/`, `sandbox/`, `output/`) come from `src/stock_analyst/paths.py`.
 
 Secrets (OpenAI key, `USE_LOCAL_LLM` toggle for Ollama) live in `.env` (gitignored). `sandbox/` holds sample filing PDFs for experiments and is also gitignored.
 
@@ -31,6 +32,8 @@ The pipeline for one company and one reporting period:
                                                           ├─▶ run_all_calculations() ─▶ CalculatedMetrics ─▶ (interpretation agent)
 stock_directory.lookup(ticker) ─▶ StockInfo (market cap) ─┘
 ```
+
+All module paths below are relative to `src/stock_analyst/`.
 
 - **`quarterly_report_parse_result.py`** — frozen pydantic model of every raw *leaf* value the metrics need, one instance per reporting period. Field descriptions are written *for the parsing agent* (where the value appears in a filing, synonym labels filers use); notes mapping fields to `metrics.py` parameters are code comments. Deliberately excludes intermediates that `metrics.py` computes, market data, and prior-period/average inputs. Also has `merge`, `get_diffs`, and `count_populated_fields` for comparing parses across prompting experiments.
 - **`metrics.py`** — pure calculation functions, one per metric in `docs/fundamental_metrics.md` (seven pillars plus composite scores like Altman Z and Piotroski F). No I/O; callers wire in values.

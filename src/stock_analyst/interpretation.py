@@ -30,7 +30,7 @@ Conventions:
 
 from pydantic import BaseModel, ConfigDict, Field
 
-import metrics
+from stock_analyst import metrics
 
 
 class CalculationInterpretation(BaseModel):

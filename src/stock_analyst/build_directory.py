@@ -4,7 +4,7 @@ Fetches every US-listed stock (NASDAQ, NYSE, AMEX) from the Nasdaq screener
 bulk endpoint -- one request per exchange, three requests total -- and writes
 data/stock_directory.json mapping ticker -> exchange, sector, industry, etc.
 
-Run any time to refresh: python build_directory.py
+Run any time to refresh: uv run build-directory
 """
 
 import json
@@ -17,9 +17,12 @@ from pathlib import Path
 
 import requests
 
+from stock_analyst.stock_directory import DEFAULT_PATH
+
 SCREENER_URL = "https://api.nasdaq.com/api/screener/stocks"
 EXCHANGES = ["NASDAQ", "NYSE", "AMEX"]
-OUTPUT_PATH = Path(__file__).parent / "data" / "stock_directory.json"
+# Write where the runtime lookup reads, so the two can never disagree.
+OUTPUT_PATH = DEFAULT_PATH
 
 # The endpoint hangs on default python UAs; a browser-like UA is required.
 HEADERS = {

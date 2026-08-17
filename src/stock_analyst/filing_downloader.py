@@ -6,12 +6,13 @@ from langchain.agents import create_agent
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from pydantic import BaseModel, Field
 
-from llm_models import get_high_effort_model
-from stock_directory import lookup
-from stock_directory import StockInfo
+from stock_analyst.llm_models import get_high_effort_model
+from stock_analyst.stock_directory import lookup
+from stock_analyst.stock_directory import StockInfo
+from stock_analyst.paths import SANDBOX_DIRECTORY
 from dataclasses import dataclass
 
-DOWNLOAD_DIRECTORY = Path("sandbox")
+DOWNLOAD_DIRECTORY = SANDBOX_DIRECTORY
 
 class QuarterlyReportFilingRow(BaseModel):
     """One row of Nasdaq's SEC-filings table, for the most recent 10-Q filing."""

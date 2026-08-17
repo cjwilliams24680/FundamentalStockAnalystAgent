@@ -1,7 +1,7 @@
 from pathlib import Path
-from pdf_reader import load_pdf_with_markdown_tables
+from stock_analyst.pdf_reader import load_pdf_with_markdown_tables
 from langchain.agents import create_agent
-from llm_models import get_default_model
+from stock_analyst.llm_models import get_default_model
 from pydantic import BaseModel, Field
 import asyncio
 

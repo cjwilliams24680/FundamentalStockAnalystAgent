@@ -1,11 +1,11 @@
 import asyncio
-from quarterly_report_parse_result import QuarterlyReportParseResult
-from stock_directory import StockInfo
-from calculation_interpreter import CalculationInterpretation
+from stock_analyst.quarterly_report_parse_result import QuarterlyReportParseResult
+from stock_analyst.stock_directory import StockInfo
+from stock_analyst.calculation_interpreter import CalculationInterpretation
 from datetime import datetime
-from llm_models import get_model_name
-from filing_downloader import DownloadedFiling
-from llm_models import get_default_model
+from stock_analyst.llm_models import get_model_name
+from stock_analyst.filing_downloader import DownloadedFiling
+from stock_analyst.llm_models import get_default_model
 from langchain.agents import create_agent
 
 author_agent = create_agent(

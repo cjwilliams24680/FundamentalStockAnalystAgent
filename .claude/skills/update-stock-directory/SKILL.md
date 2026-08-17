@@ -20,7 +20,7 @@ Refresh the local stock directory (`data/stock_directory.json`) from the free Na
 2. **Run the batch builder** from the repo root:
 
    ```bash
-   uv run python build_directory.py
+   uv run build-directory
    ```
 
    Takes ~10–30 seconds. It retries each exchange 3 times with backoff, writes atomically, and refuses to overwrite the existing file if it fetches fewer than 5,000 tickers total — so a failure here never corrupts the existing directory.
@@ -29,7 +29,7 @@ Refresh the local stock directory (`data/stock_directory.json`) from the free Na
 
    ```bash
    uv run python -c "
-   from stock_directory import lookup
+   from stock_analyst.stock_directory import lookup
    assert lookup('AAPL').exchange == 'NASDAQ' and lookup('AAPL').sector == 'Technology'
    assert lookup('JPM').exchange == 'NYSE'
    assert lookup('NOTREAL') is None
@@ -56,6 +56,6 @@ Refresh the local stock directory (`data/stock_directory.json`) from the free Na
 
 ## Troubleshooting
 
-- **All three exchanges fail / timeouts**: the endpoint (`api.nasdaq.com/api/screener/stocks`) requires a browser-like User-Agent, which `build_directory.py` already sends. Persistent failure likely means Nasdaq changed the unofficial endpoint — check whether the response shape still has `data.rows` with `symbol`/`sector`/`industry` fields, and fix `build_directory.py` to match.
+- **All three exchanges fail / timeouts**: the endpoint (`api.nasdaq.com/api/screener/stocks`) requires a browser-like User-Agent, which `src/stock_analyst/build_directory.py` already sends. Persistent failure likely means Nasdaq changed the unofficial endpoint — check whether the response shape still has `data.rows` with `symbol`/`sector`/`industry` fields, and fix `build_directory.py` to match.
 - **Endpoint gone entirely**: the documented fallback is SEC EDGAR — `https://www.sec.gov/files/company_tickers_exchange.json` for ticker/exchange plus SIC codes for industry (requires a `User-Agent: name email` header). This is a rebuild of the source layer, not a quick fix; surface it to the user before attempting.
 - **Count sanity check trips** (< 5,000 tickers): one exchange probably returned a partial result. The old file is untouched; just rerun.

@@ -23,10 +23,10 @@ Two conventions:
   ``CalculatedMetrics`` fields — see ``docs/descoped_multi_period_metrics.md``.
 """
 
-import metrics
-from calculated_metrics import CalculatedMetrics
-from quarterly_report_parse_result import QuarterlyReportParseResult
-from stock_directory import StockInfo
+from stock_analyst import metrics
+from stock_analyst.calculated_metrics import CalculatedMetrics
+from stock_analyst.quarterly_report_parse_result import QuarterlyReportParseResult
+from stock_analyst.stock_directory import StockInfo
 
 
 def _zero_if_missing(value: float | None) -> float:

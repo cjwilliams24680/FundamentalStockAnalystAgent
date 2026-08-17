@@ -1,17 +1,17 @@
-from table_parser import (
+from stock_analyst.table_parser import (
     FinancialReportTable,
     turn_table_to_string,
     turn_tables_to_string,
     extract_tables_from_report,
 )
-from date_parser import (
+from stock_analyst.date_parser import (
     get_quarter_parsing_parameters,
     extract_quarter_info,
 )
-from pdf_reader import load_pdf_with_markdown_tables
+from stock_analyst.pdf_reader import load_pdf_with_markdown_tables
 import asyncio
-from quarterly_report_parse_result import QuarterlyReportParseResult
-from llm_models import get_default_model
+from stock_analyst.quarterly_report_parse_result import QuarterlyReportParseResult
+from stock_analyst.llm_models import get_default_model
 from langchain.agents import create_agent
 from pathlib import Path
 

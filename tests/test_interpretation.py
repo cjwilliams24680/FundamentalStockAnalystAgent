@@ -8,8 +8,8 @@ polished without breaking tests.
 
 import pytest
 
-import interpretation
-import metrics
+from stock_analyst import interpretation
+from stock_analyst import metrics
 
 
 def test_raw_value_passes_through_unchanged():
