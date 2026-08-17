@@ -8,20 +8,26 @@ from stock_analyst.paths import OUTPUT_DIRECTORY
 from stock_analyst.report_writer import write_report
 from stock_analyst.run_all_calculations import run_all_calculations
 from stock_analyst.stock_directory import lookup
+from stock_analyst.welcome import collect_user_input
 
 
 async def main():
-    input_ticker = input("Enter a ticker: ")
-    stock_info = lookup(input_ticker)
-    download_result = await run_report_downloader(input_ticker)
+    download_result = await collect_user_input()
+    if not download_result:
+        return
+
     parse_result = await run_parser_table_by_table(download_result.file_path)
     notes = await take_notes_on_filing(download_result.file_path)
+
+    stock_info = lookup(download_result.ticker)
     calculated_metrics = run_all_calculations(
         stock_info=stock_info,
         parse_result=parse_result,
     )
+
     interpreted_values = interpret_all_calculations(calculated_metrics)
     unusual_values = [value for value in interpreted_values if value.falls_outside_normal_range]
+
     report = await write_report(
         stock_info=stock_info,
         downloaded_filing=download_result,

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 
-from stock_analyst.llm_models import get_default_model
+from stock_analyst.llm_models import DEFAULT_MODEL
 
 
 class DateOfReport(BaseModel):
@@ -76,7 +76,7 @@ so that it is easier for the parsing agent to process.
 
 date_of_report_extraction_agent = create_agent(
     system_prompt=data_extraction_system_prompt,
-    model=get_default_model(),
+    model=DEFAULT_MODEL,
     response_format=DateOfReport,
 )
 

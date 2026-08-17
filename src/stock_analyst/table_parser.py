@@ -7,7 +7,7 @@ from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 
 from stock_analyst.date_parser import QuarterParsingParameters
-from stock_analyst.llm_models import get_default_model
+from stock_analyst.llm_models import DEFAULT_MODEL
 
 _PARENTHESIZED_NUMBER_PATTERN = re.compile(r"\((\d[\d,]*(?:\.\d+)?)\)")
 
@@ -91,13 +91,13 @@ so that it is easier for the parsing agent to process.
 """
 table_extraction_agent = create_agent(
     system_prompt=data_extraction_system_prompt,
-    model=get_default_model(),
+    model=DEFAULT_MODEL,
     response_format=FinancialReportTables,
 )
 
 table_cleaning_agent = create_agent(
     system_prompt=data_extraction_system_prompt,
-    model=get_default_model(),
+    model=DEFAULT_MODEL,
     response_format=FinancialReportTable,
 )
 

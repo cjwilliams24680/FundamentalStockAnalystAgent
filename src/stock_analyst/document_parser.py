@@ -7,7 +7,7 @@ from stock_analyst.date_parser import (
     extract_quarter_info,
     get_quarter_parsing_parameters,
 )
-from stock_analyst.llm_models import get_default_model
+from stock_analyst.llm_models import DEFAULT_MODEL
 from stock_analyst.pdf_reader import load_pdf_with_markdown_tables
 from stock_analyst.quarterly_report_parse_result import QuarterlyReportParseResult
 from stock_analyst.table_parser import (
@@ -35,7 +35,7 @@ Use the negative value of the number inside the parentheses.
 """
 parser_agent = create_agent(
     system_prompt=parser_system_prompt,
-    model=get_default_model(),
+    model=DEFAULT_MODEL,
     response_format=QuarterlyReportParseResult,
 )
 

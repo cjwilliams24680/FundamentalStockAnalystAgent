@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from stock_analyst.llm_models import get_high_effort_model
 from stock_analyst.paths import SANDBOX_DIRECTORY
 from stock_analyst.stock_directory import StockInfo, lookup
+from stock_analyst.welcome import DownloadedFiling
 
 DOWNLOAD_DIRECTORY = SANDBOX_DIRECTORY
 
@@ -24,17 +25,13 @@ class QuarterlyReportFilingRow(BaseModel):
         description="The full href of the 'PDF' link in the row's View column."
     )
 
-
-@dataclass
-class DownloadedFiling:
-    ticker: str
-    file_path: Path
-
+def get_filings_url(stock_info: StockInfo) -> str:
+    return f"https://www.nasdaq.com/market-activity/stocks/{stock_info.ticker}/sec-filings?page=1&rows_per_page=50"
 
 def _get_web_crawling_instructions(stock_info: StockInfo) -> str:
     # Nasdaq actually lists 10Qs for NYSE stocks too, so I can use the same instructions for both.
     return f"""
-Go to https://www.nasdaq.com/market-activity/stocks/{stock_info.ticker}/sec-filings?page=1&rows_per_page=50
+Go to {get_filings_url(stock_info)}
 
 You'll see a list of SEC forms.
 

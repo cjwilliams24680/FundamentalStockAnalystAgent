@@ -4,12 +4,12 @@ from langchain.agents import create_agent
 
 from stock_analyst.calculation_interpreter import CalculationInterpretation
 from stock_analyst.filing_downloader import DownloadedFiling
-from stock_analyst.llm_models import get_default_model, get_model_name
+from stock_analyst.llm_models import DEFAULT_MODEL, get_model_name
 from stock_analyst.quarterly_report_parse_result import QuarterlyReportParseResult
 from stock_analyst.stock_directory import StockInfo
 
 author_agent = create_agent(
-    model=get_default_model(),
+    model=DEFAULT_MODEL,
     system_prompt="You are a financial analyst. You have been given information about "
     "a company's financial performance report. Your job is to summarize the report "
     "in a way that is easy to understand for a non-financial person.",

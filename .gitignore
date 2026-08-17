@@ -8,10 +8,7 @@ dist/
 
 # Virtual environments
 .venv/
-sandbox/
-
-# Generated reports
-output/
+sandbox/*.pdf
 
 # Playwright MCP session logs
 .playwright-mcp/

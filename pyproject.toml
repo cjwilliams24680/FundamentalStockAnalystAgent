@@ -12,6 +12,7 @@ dependencies = [
     "langchain-openai>=1.5.0",
     "langgraph>=1.2.11",
     "pdfplumber>=0.11.10",
+    "pick>=2.6.0",
     "pydantic>=2.13.4",
     "pymupdf>=1.28.2",
     "pypdf>=6.16.0",

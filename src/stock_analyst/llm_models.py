@@ -1,3 +1,4 @@
+from enum import Enum, auto
 import os
 
 from dotenv import load_dotenv
@@ -6,27 +7,41 @@ from langchain_openai import ChatOpenAI
 
 load_dotenv(override=True)
 
+class ModelConfig(Enum):
+    REMOTE_ONLY = auto()
+    LOCAL_ONLY = auto()
+    DEFAULT = auto()
 
-def get_default_model(use_local_llm: bool | None = None):
-    if use_local_llm is None:
-        # os.getenv returns a string, and any non-empty string (including
-        # "false") is truthy, so the value must be parsed explicitly.
-        use_local_llm = os.getenv("USE_LOCAL_LLM", "").strip().lower() in ("1", "true", "yes")
-    if use_local_llm:
+def _load_model_config() -> ModelConfig:
+    match os.getenv("LLM_CONFIG"):
+        case "remote_only":
+            return ModelConfig.REMOTE_ONLY
+        case "local_only":
+            return ModelConfig.LOCAL_ONLY
+        case _:
+            return ModelConfig.DEFAULT
+
+
+MODEL_CONFIG = _load_model_config()
+
+def _get_default_model():
+    if MODEL_CONFIG != ModelConfig.REMOTE_ONLY:
         return ChatOllama(model="gemma4", temperature=0)
     else:
         # gpt-5.6-luna rejects function tools with reasoning_effort on the
         # Chat Completions endpoint; the Responses API supports both.
         return ChatOpenAI(model="gpt-5.6-luna", use_responses_api=True)
 
+DEFAULT_MODEL = _get_default_model()
+_HIGH_EFFORT_MODEL = ChatOpenAI(model="gpt-5.6-sol", use_responses_api=True)
 
 def get_high_effort_model():
-    return ChatOpenAI(model="gpt-5.6-sol", use_responses_api=True)
-
+    if MODEL_CONFIG == ModelConfig.LOCAL_ONLY:
+        raise ValueError("High effort model is not available in local mode")
+    return _HIGH_EFFORT_MODEL
 
 def get_model_name() -> str:
-    model = get_default_model()
-    if isinstance(model, ChatOllama):
-        return model.model
+    if isinstance(DEFAULT_MODEL, ChatOllama):
+        return DEFAULT_MODEL.model
     else:
-        return model.model_name
+        return DEFAULT_MODEL.model_name

@@ -4,7 +4,7 @@ from pathlib import Path
 from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 
-from stock_analyst.llm_models import get_default_model
+from stock_analyst.llm_models import DEFAULT_MODEL
 from stock_analyst.pdf_reader import load_pdf_with_markdown_tables
 
 
@@ -27,7 +27,7 @@ class Notes(BaseModel):
 
 
 notes_taker_agent = create_agent(
-    model=get_default_model(),
+    model=DEFAULT_MODEL,
     system_prompt="You are a financial analyst. Your job is to comb over the financial "
     "performance report and take notes on any interesting insights or patterns that you see.",
     response_format=Notes,
