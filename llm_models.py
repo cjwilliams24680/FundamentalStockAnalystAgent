@@ -19,3 +19,10 @@ def get_default_model(use_local_llm: bool | None = None):
 
 def get_high_effort_model():
     return ChatOpenAI(model="gpt-5.6-sol", use_responses_api=True)
+
+def get_model_name() -> str:
+    model = get_default_model()
+    if isinstance(model, ChatOllama):
+        return model.model
+    else:
+        return model.model_name

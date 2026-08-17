@@ -28,7 +28,7 @@ class QuarterlyReportFilingRow(BaseModel):
 class DownloadedFiling:
     ticker: str
     form_type: str
-    filed_date: str
+    period_end_date: str
     file_path: Path
 
 def _get_web_crawling_instructions(stock_info: StockInfo) -> str:
@@ -113,6 +113,6 @@ async def run_report_downloader(ticker: str) -> DownloadedFiling:
     return DownloadedFiling(
         ticker=stock_info.ticker,
         form_type=filing_row.form_type,
-        filed_date=filing_row.filed_date,
+        period_end_date=filing_row.period_end_date,
         file_path=destination,
     )
