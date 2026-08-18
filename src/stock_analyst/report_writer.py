@@ -45,7 +45,7 @@ async def write_report(
 ---
 
 ## Unusual Values
-{to_markdown_list(unusual_values)}
+{write_unusual_values_as_markdown(unusual_values)}
 
 ---
 
@@ -59,27 +59,14 @@ async def write_report(
 
 """
 
-
-def to_summary_string(interpretation: CalculationInterpretation) -> str:
-    raw_value = interpretation.raw_value
-    if isinstance(raw_value, float):
-        raw_value = f"{raw_value:.2f}"
-    return (
-        f"{interpretation.field_name}: {raw_value} "
-        f"({interpretation.interpretation})"
-    )
-
-
 async def summarize_unusual_values(
     unusual_values: list[CalculationInterpretation],
 ) -> str:
-    unusual_values_string = [to_summary_string(interpretation) for interpretation in unusual_values]
-
     message = f"""
 I ran a fundamental analysis calculations on the company's financial performance report.
 
 Here are the unusual values found in the calculations:
-{to_markdown_list(unusual_values_string)}
+{write_unusual_values_as_markdown(unusual_values)}
 
 Please summarize the unusual values concisely in one paragraph.
 Add a few sentences of commentary at the end about the company's valuation and future performance
@@ -107,3 +94,9 @@ on the company's valuation and future performance.
 
 def to_markdown_list(items: list[str]) -> str:
     return "\n".join([f"- {item}" for item in items])
+
+def write_unusual_values_as_markdown(unusual_values: list[CalculationInterpretation]) -> str:
+    output = ""
+    for value in unusual_values:
+        output += f"**{value.field_name}**: {value.raw_value:.2f}\n({value.interpretation})\n\n"
+    return output
