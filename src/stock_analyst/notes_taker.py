@@ -9,14 +9,9 @@ from stock_analyst.pdf_reader import load_pdf_with_markdown_tables
 
 
 class Notes(BaseModel):
-    risks: list[str] = Field(description="A list of significant risks that the company is facing.")
-    opportunities: list[str] = Field(
-        description="A list of significant opportunities that the company is taking advantage of."
-    )
-    upcoming_catalysts: list[str] = Field(
-        description="A list of significant upcoming catalysts that could impact "
-        "the company's performance and/or remove ambiguity from the report."
-    )
+    risks: list[str] = Field(description="A list of significant risks that the company is facing. If you don't see any, return an empty list.", default_factory=list)
+    opportunities: list[str] = Field(description="A list of significant opportunities that the company is taking advantage of. If you don't see any, return an empty list.", default_factory=list)
+    upcoming_catalysts: list[str] = Field(description="A list of significant upcoming catalysts that could impact the company's performance and/or remove ambiguity from the report. If you don't see any, return an empty list.", default_factory=list)
 
     def merge(self, other: "Notes") -> "Notes":
         return Notes(
@@ -57,8 +52,12 @@ async def take_notes_from_page(page: str) -> Notes:
     IMPORTANT: Ignore any tables on the page. Only focus on the text.
     The tables are not relevant to the notes you are taking.
 
+    Ignore any legal disclaimers on the page.
+
     Focus on the most significant risks, opportunities, and upcoming catalysts
-    that could impact the company in a meaningful way.
+    that could impact the company in a meaningful way. Only return clear observable facts.
+    Don't make up any information. Don't add comments like "I don't see any risks" or "I don't see any opportunities".
+    Only return the facts.
 
     Here is the page:
     {page}

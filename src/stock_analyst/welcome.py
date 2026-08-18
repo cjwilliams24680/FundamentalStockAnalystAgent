@@ -76,6 +76,7 @@ def _prompt_for_file_selection() -> Path:
 async def collect_user_input() -> DownloadedFiling:
     ticker = _prompt_for_ticker()
     stock_info = lookup(ticker)
+    ticker = stock_info.ticker
     download_method = _prompt_for_download_method(stock_info)
     match download_method:
         case DownloadMethod.WebCrawler:
