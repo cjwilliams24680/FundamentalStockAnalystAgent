@@ -38,7 +38,7 @@ Conventions carry over from ``metrics.py``:
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class CalculatedMetrics(BaseModel):
+class CalculatedValues(BaseModel):
     """Every calculated result produced by the functions in ``metrics.py``,
     for a single company at a single point in time.
 

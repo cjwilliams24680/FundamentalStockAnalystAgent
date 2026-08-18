@@ -7,8 +7,8 @@ from enum import StrEnum
 from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 
-from stock_analyst.date_parser import QuarterParsingParameters
-from stock_analyst.llm_models import DEFAULT_MODEL
+from stock_analyst.end_of_financial_period_parser import EarningsPeriodInfo
+from stock_analyst.llm_provider import DEFAULT_MODEL
 
 _PARENTHESIZED_NUMBER_PATTERN = re.compile(r"\((\d[\d,]*(?:\.\d+)?)\)")
 
@@ -152,7 +152,7 @@ table_cleaning_agent = create_agent(
 
 
 async def extract_tables_from_report_page(
-    page: str, quarter_info: QuarterParsingParameters
+    page: str, quarter_info: EarningsPeriodInfo
 ) -> list[FinancialReportTable]:
     message = f"""
 I have a page from a 10Q document. I would like you to extract any financial tables
@@ -186,7 +186,7 @@ Here is the page:
 
 
 async def clean_table(
-    table: FinancialReportTable, quarter_info: QuarterParsingParameters
+    table: FinancialReportTable, quarter_info: EarningsPeriodInfo
 ) -> FinancialReportTable:
     message = f"""
 I have a table from a 10Q document. I want you to remove information that is
@@ -226,7 +226,7 @@ Here is the table that I want you to refine:
 
 
 async def extract_tables_from_report(
-    pages: list[str], quarter_info: QuarterParsingParameters
+    pages: list[str], quarter_info: EarningsPeriodInfo
 ) -> list[FinancialReportTable]:
     tables = []
     results = await asyncio.gather(
@@ -238,7 +238,7 @@ async def extract_tables_from_report(
 
 
 async def extract_cleaned_tables_from_page(
-    page: str, quarter_info: QuarterParsingParameters
+    page: str, quarter_info: EarningsPeriodInfo
 ) -> list[FinancialReportTable]:
     tables_from_page = await extract_tables_from_report_page(page, quarter_info)
     tables_from_page = [table for table in tables_from_page if not table.flagged_as_irrelevant]

@@ -5,10 +5,10 @@ from langchain.agents import create_agent
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from pydantic import BaseModel, Field
 
-from stock_analyst.llm_models import get_high_effort_model
+from stock_analyst.llm_provider import get_high_effort_model
 from stock_analyst.paths import SANDBOX_DIRECTORY
 from stock_analyst.stock_directory import StockInfo, lookup
-from stock_analyst.file_download_models import DownloadedFiling
+from stock_analyst.report_download_models import DownloadedReport
 
 DOWNLOAD_DIRECTORY = SANDBOX_DIRECTORY
 
@@ -66,7 +66,7 @@ def download_filing(download_link: str, destination: Path) -> None:
     destination.write_bytes(response.content)
 
 
-async def run_report_downloader(ticker: str) -> DownloadedFiling:
+async def run_report_downloader(ticker: str) -> DownloadedReport:
     client = MultiServerMCPClient(
         {
             "playwright": {
@@ -114,7 +114,7 @@ async def run_report_downloader(ticker: str) -> DownloadedFiling:
     download_filing(filing_row.download_link, destination)
     print(f"Saved {destination} ({destination.stat().st_size:,} bytes)")
 
-    return DownloadedFiling(
+    return DownloadedReport(
         ticker=stock_info.ticker,
         file_path=destination,
     )

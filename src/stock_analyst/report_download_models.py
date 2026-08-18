@@ -3,7 +3,7 @@ from pathlib import Path
 from enum import Enum, auto
 
 @dataclass
-class DownloadedFiling:
+class DownloadedReport:
     ticker: str
     file_path: Path
 

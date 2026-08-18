@@ -6,18 +6,18 @@ from stock_analyst.quarterly_report_parse_result import (
     BALANCE_SHEET_FIELD_NAMES,
     SHARE_COUNT_FIELD_NAMES,
     YEAR_TO_DATE_FLOW_FIELD_NAMES,
-    QuarterlyReportParseResult,
+    RawQuantitativeData,
     count_populated_fields,
     get_diffs,
 )
 
 
 def test_merge_prefers_first_instance_and_falls_back_to_second():
-    first = QuarterlyReportParseResult(
+    first = RawQuantitativeData(
         revenue=100.0,
         total_assets=500.0,
     )
-    second = QuarterlyReportParseResult(
+    second = RawQuantitativeData(
         revenue=200.0,
         net_income=50.0,
         inventory=30.0,
@@ -33,8 +33,8 @@ def test_merge_prefers_first_instance_and_falls_back_to_second():
 
 
 def test_merge_returns_new_instance_and_leaves_inputs_unchanged():
-    first = QuarterlyReportParseResult(revenue=100.0)
-    second = QuarterlyReportParseResult(net_income=50.0)
+    first = RawQuantitativeData(revenue=100.0)
+    second = RawQuantitativeData(net_income=50.0)
 
     merged = first.merge(second)
 
@@ -44,17 +44,17 @@ def test_merge_returns_new_instance_and_leaves_inputs_unchanged():
 
 
 def test_merge_covers_every_field():
-    filled = QuarterlyReportParseResult(
-        **{field_name: 1.0 for field_name in QuarterlyReportParseResult.model_fields}
+    filled = RawQuantitativeData(
+        **{field_name: 1.0 for field_name in RawQuantitativeData.model_fields}
     )
-    empty = QuarterlyReportParseResult()
+    empty = RawQuantitativeData()
 
     assert empty.merge(filled) == filled
     assert filled.merge(empty) == filled
 
 
 def test_apply_unit_scale_multiplies_monetary_and_share_fields_separately():
-    parse_result = QuarterlyReportParseResult(
+    parse_result = RawQuantitativeData(
         revenue=81615.0,
         weighted_average_diluted_shares=24391.0,
     )
@@ -69,7 +69,7 @@ def test_apply_unit_scale_multiplies_monetary_and_share_fields_separately():
 
 
 def test_apply_unit_scale_propagates_none_and_preserves_signs():
-    parse_result = QuarterlyReportParseResult(investing_cash_flow=-26429.0)
+    parse_result = RawQuantitativeData(investing_cash_flow=-26429.0)
 
     scaled = parse_result.apply_unit_scale(1_000_000.0, 1_000_000.0)
 
@@ -78,19 +78,19 @@ def test_apply_unit_scale_propagates_none_and_preserves_signs():
 
 
 def test_apply_unit_scale_touches_every_field():
-    filled = QuarterlyReportParseResult(
-        **{field_name: 1.0 for field_name in QuarterlyReportParseResult.model_fields}
+    filled = RawQuantitativeData(
+        **{field_name: 1.0 for field_name in RawQuantitativeData.model_fields}
     )
 
     scaled = filled.apply_unit_scale(1_000.0, 1_000.0)
 
     assert scaled is not filled
-    for field_name in QuarterlyReportParseResult.model_fields:
+    for field_name in RawQuantitativeData.model_fields:
         assert getattr(scaled, field_name) == 1_000.0
 
 
 def test_annualize_year_to_date_flow_values_scales_only_flows():
-    parse_result = QuarterlyReportParseResult(
+    parse_result = RawQuantitativeData(
         revenue=100.0,  # flow
         operating_cash_flow=40.0,  # flow
         total_assets=500.0,  # balance sheet
@@ -107,7 +107,7 @@ def test_annualize_year_to_date_flow_values_scales_only_flows():
 
 
 def test_annualize_year_to_date_flow_values_factor_per_quarter():
-    parse_result = QuarterlyReportParseResult(revenue=120.0)
+    parse_result = RawQuantitativeData(revenue=120.0)
 
     assert parse_result.annualize_year_to_date_flow_values("Q1").revenue == 480.0
     assert parse_result.annualize_year_to_date_flow_values("Q2").revenue == 240.0
@@ -117,11 +117,11 @@ def test_annualize_year_to_date_flow_values_factor_per_quarter():
 
 def test_annualize_year_to_date_flow_values_rejects_unknown_quarter():
     with pytest.raises(ValueError):
-        QuarterlyReportParseResult().annualize_year_to_date_flow_values("Q5")
+        RawQuantitativeData().annualize_year_to_date_flow_values("Q5")
 
 
 def test_field_classification_partitions_the_model_exactly():
-    all_field_names = set(QuarterlyReportParseResult.model_fields)
+    all_field_names = set(RawQuantitativeData.model_fields)
 
     union_of_classified_fields = (
         YEAR_TO_DATE_FLOW_FIELD_NAMES | BALANCE_SHEET_FIELD_NAMES | SHARE_COUNT_FIELD_NAMES
@@ -133,28 +133,28 @@ def test_field_classification_partitions_the_model_exactly():
 
 
 def test_count_populated_fields():
-    assert count_populated_fields(QuarterlyReportParseResult()) == 0
+    assert count_populated_fields(RawQuantitativeData()) == 0
 
-    partially_filled = QuarterlyReportParseResult(
+    partially_filled = RawQuantitativeData(
         revenue=100.0,
         net_income=0.0,  # zero is a reported value, not a gap
         inventory=30.0,
     )
     assert count_populated_fields(partially_filled) == 3
 
-    fully_filled = QuarterlyReportParseResult(
-        **{field_name: 1.0 for field_name in QuarterlyReportParseResult.model_fields}
+    fully_filled = RawQuantitativeData(
+        **{field_name: 1.0 for field_name in RawQuantitativeData.model_fields}
     )
-    assert count_populated_fields(fully_filled) == len(QuarterlyReportParseResult.model_fields)
+    assert count_populated_fields(fully_filled) == len(RawQuantitativeData.model_fields)
 
 
 def test_get_diffs():
-    first = QuarterlyReportParseResult(
+    first = RawQuantitativeData(
         revenue=100.0,  # differs
         net_income=50.0,  # equal in both
         inventory=30.0,  # set only in first
     )
-    second = QuarterlyReportParseResult(
+    second = RawQuantitativeData(
         revenue=200.0,
         net_income=50.0,
         total_assets=500.0,  # set only in second
@@ -170,8 +170,8 @@ def test_get_diffs():
 
 
 def test_get_diffs_returns_empty_list_for_equal_instances():
-    first = QuarterlyReportParseResult(revenue=100.0, net_income=50.0)
-    second = QuarterlyReportParseResult(revenue=100.0, net_income=50.0)
+    first = RawQuantitativeData(revenue=100.0, net_income=50.0)
+    second = RawQuantitativeData(revenue=100.0, net_income=50.0)
 
     assert get_diffs(first, second) == []
-    assert get_diffs(QuarterlyReportParseResult(), QuarterlyReportParseResult()) == []
+    assert get_diffs(RawQuantitativeData(), RawQuantitativeData()) == []

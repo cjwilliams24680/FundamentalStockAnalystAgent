@@ -2,10 +2,10 @@ from pathlib import Path
 from pick import pick
 
 from stock_analyst.stock_directory import StockInfo, lookup
-from stock_analyst.llm_models import MODEL_CONFIG, ModelConfig
-from stock_analyst.filing_downloader import get_filings_url, run_report_downloader
+from stock_analyst.llm_provider import MODEL_CONFIG, ModelConfig
+from stock_analyst.earnings_report_downloader import get_filings_url, run_report_downloader
 from stock_analyst.paths import SANDBOX_DIRECTORY
-from stock_analyst.file_download_models import DownloadedFiling, DownloadMethod
+from stock_analyst.report_download_models import DownloadedReport, DownloadMethod
 
 def _prompt_for_ticker() -> str:
     ticker = input("Enter a ticker: ")
@@ -73,7 +73,7 @@ def _prompt_for_file_selection() -> Path:
 
     return pdf_files[index]
 
-async def collect_user_input() -> DownloadedFiling:
+async def collect_user_input() -> DownloadedReport:
     ticker = _prompt_for_ticker()
     stock_info = lookup(ticker)
     ticker = stock_info.ticker
@@ -84,7 +84,7 @@ async def collect_user_input() -> DownloadedFiling:
         case DownloadMethod.Manual:
             path = _prompt_for_file_selection()
             if path:
-                return DownloadedFiling(ticker=ticker, file_path=path)
+                return DownloadedReport(ticker=ticker, file_path=path)
             else:
                 return None
         case _:

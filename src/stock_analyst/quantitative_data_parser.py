@@ -4,20 +4,20 @@ from pathlib import Path
 
 from langchain.agents import create_agent
 
-from stock_analyst.date_parser import (
-    extract_quarter_info,
-    get_quarter_parsing_parameters,
+from stock_analyst.end_of_financial_period_parser import (
+    extract_end_of_earnings_period,
+    get_earnings_period_info,
 )
-from stock_analyst.llm_models import DEFAULT_MODEL
+from stock_analyst.llm_provider import DEFAULT_MODEL
 from stock_analyst.pdf_reader import load_pdf_with_markdown_tables
-from stock_analyst.quarterly_report_parse_result import QuarterlyReportParseResult
+from stock_analyst.quantitative_data import RawQuantitativeData
 from stock_analyst.table_parser import (
     FinancialReportTable,
     extract_tables_from_report,
     turn_table_to_string,
 )
 
-parser_system_prompt = """
+quantitative_parsing_prompt = """
 You are a financial analyst.
 
 You are given a 10Q document.
@@ -38,45 +38,45 @@ Record numbers exactly as printed in the table. Never convert them for unit
 captions like "in millions" or "in thousands" — the pipeline applies the unit
 scale afterward.
 """
-parser_agent = create_agent(
-    system_prompt=parser_system_prompt,
+quantitative_parsing_agent = create_agent(
+    system_prompt=quantitative_parsing_prompt,
     model=DEFAULT_MODEL,
-    response_format=QuarterlyReportParseResult,
+    response_format=RawQuantitativeData,
 )
 
 
 @dataclass(frozen=True)
-class ParsedQuarterlyReport:
-    parse_result: QuarterlyReportParseResult
-    fiscal_quarter: str  # "Q1".."Q4", from date_parser.QuarterParsingParameters
+class QuantitativeParseResult:
+    raw_data: RawQuantitativeData
+    fiscal_quarter: str  # "Q1".."Q4", from end_of_financial_period_parser.EarningsPeriodInfo
 
 
-async def run_parser_table_by_table(file_path: Path) -> ParsedQuarterlyReport:
-    pages = load_pdf_with_markdown_tables(file_path)
-    quarter_info = await extract_quarter_info(pages)
-    params = get_quarter_parsing_parameters(quarter_info)
-    tables = await extract_tables_from_report(pages, params)
+async def parse_quantitative_values_from_report(path_to_report: Path) -> QuantitativeParseResult:
+    pages = load_pdf_with_markdown_tables(path_to_report)
+    quarter_info = await extract_end_of_earnings_period(pages)
+    earnings_period_info = get_earnings_period_info(quarter_info)
+    tables = await extract_tables_from_report(pages, earnings_period_info)
 
-    merged_result = QuarterlyReportParseResult()
+    merged_result = RawQuantitativeData()
 
     # Run the parser on each table one-by-one
-    results = await asyncio.gather(*[run_parser_on_table(table) for table in tables])
+    results = await asyncio.gather(*[_parse_quantitative_values_from_table(table) for table in tables])
 
     # Merge the parse results together
     for result in results:
         merged_result = merged_result.merge(result)
 
-    return ParsedQuarterlyReport(parse_result=merged_result, fiscal_quarter=params.quarter)
+    return QuantitativeParseResult(raw_data=merged_result, fiscal_quarter=earnings_period_info.quarter)
 
 
-async def run_parser_on_table(table: FinancialReportTable) -> QuarterlyReportParseResult:
+async def _parse_quantitative_values_from_table(table: FinancialReportTable) -> RawQuantitativeData:
     message = f"""
 Here is a table from a 10Q document. I would like you to parse it for financial statements:
 
 {turn_table_to_string(table)}
 """
 
-    result = await parser_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+    result = await quantitative_parsing_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
     parse_result = result["structured_response"]
 
     # Scale per table, before merging: tables can state different scales.

@@ -39,12 +39,12 @@ MAX_ATTEMPTS = 3
 MIN_TOTAL_COUNT = 5000
 
 
-def normalize_ticker(symbol: str) -> str:
+def _normalize_ticker(symbol: str) -> str:
     """Canonical ticker form: uppercase, share classes as dots (BRK/A -> BRK.A)."""
     return symbol.strip().upper().replace("/", ".")
 
 
-def fetch_exchange(exchange: str) -> list[dict]:
+def _fetch_exchange(exchange: str) -> list[dict]:
     params = {"tableonly": "true", "limit": 25, "exchange": exchange, "download": "true"}
     last_error: Exception | None = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
@@ -66,7 +66,7 @@ def fetch_exchange(exchange: str) -> list[dict]:
     raise RuntimeError(f"failed to fetch {exchange} after {MAX_ATTEMPTS} attempts: {last_error}")
 
 
-def parse_market_cap(raw: str) -> float | None:
+def _parse_market_cap(raw: str) -> float | None:
     try:
         value = float(raw)
     except (TypeError, ValueError):
@@ -74,22 +74,22 @@ def parse_market_cap(raw: str) -> float | None:
     return value or None
 
 
-def parse_ipo_year(raw: str) -> int | None:
+def _parse_ipo_year(raw: str) -> int | None:
     try:
         return int(raw)
     except (TypeError, ValueError):
         return None
 
 
-def build_directory() -> dict:
+def _build_directory() -> dict:
     stocks: dict[str, dict] = {}
     counts: dict[str, int] = {}
     for exchange in EXCHANGES:
         print(f"Fetching {exchange}...")
-        rows = fetch_exchange(exchange)
+        rows = _fetch_exchange(exchange)
         counts[exchange] = len(rows)
         for row in rows:
-            ticker = normalize_ticker(row["symbol"])
+            ticker = _normalize_ticker(row["symbol"])
             if ticker in stocks:
                 print(
                     f"  duplicate ticker {ticker}: keeping "
@@ -102,8 +102,8 @@ def build_directory() -> dict:
                 "sector": row.get("sector") or None,
                 "industry": row.get("industry") or None,
                 "country": row.get("country") or None,
-                "market_cap": parse_market_cap(row.get("marketCap")),
-                "ipo_year": parse_ipo_year(row.get("ipoyear")),
+                "market_cap": _parse_market_cap(row.get("marketCap")),
+                "ipo_year": _parse_ipo_year(row.get("ipoyear")),
             }
         print(f"  {exchange}: {len(rows)} rows")
 
@@ -124,7 +124,7 @@ def build_directory() -> dict:
     }
 
 
-def write_atomic(directory: dict, path: Path) -> None:
+def _write_atomic(directory: dict, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, temp_path = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
     try:
@@ -137,13 +137,13 @@ def write_atomic(directory: dict, path: Path) -> None:
         raise
 
 
-def main() -> int:
+def _main() -> int:
     try:
-        directory = build_directory()
+        directory = _build_directory()
     except RuntimeError as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    write_atomic(directory, OUTPUT_PATH)
+    _write_atomic(directory, OUTPUT_PATH)
     counts = directory["metadata"]["counts"]
     print(
         f"Wrote {counts['total']} tickers to {OUTPUT_PATH} "
@@ -153,4 +153,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_main())

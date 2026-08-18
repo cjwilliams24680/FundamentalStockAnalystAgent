@@ -117,13 +117,13 @@ ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER = {
 }
 
 
-class QuarterlyReportParseResult(BaseModel):
+class RawQuantitativeData(BaseModel):
     """Every raw statement value needed by the functions in ``metrics.py``,
     for a single reporting period."""
 
     model_config = ConfigDict(frozen=True)
 
-    def merge(self, other: "QuarterlyReportParseResult") -> "QuarterlyReportParseResult":
+    def merge(self, other: "RawQuantitativeData") -> "RawQuantitativeData":
         """Combine two parse results, preferring this instance's values.
 
         For each field, uses this instance's value when it is not ``None``,
@@ -137,11 +137,11 @@ class QuarterlyReportParseResult(BaseModel):
             )
             for field_name in type(self).model_fields
         }
-        return QuarterlyReportParseResult(**merged_field_values)
+        return RawQuantitativeData(**merged_field_values)
 
     def apply_unit_scale(
         self, monetary_value_multiplier: float, share_count_multiplier: float
-    ) -> "QuarterlyReportParseResult":
+    ) -> "RawQuantitativeData":
         """Convert values recorded as printed into whole currency units.
 
         Filings print amounts at a stated scale (e.g. '(In millions)'); the
@@ -161,11 +161,11 @@ class QuarterlyReportParseResult(BaseModel):
                 scaled_field_values[field_name] = value * share_count_multiplier
             else:
                 scaled_field_values[field_name] = value * monetary_value_multiplier
-        return QuarterlyReportParseResult(**scaled_field_values)
+        return RawQuantitativeData(**scaled_field_values)
 
     def annualize_year_to_date_flow_values(
         self, fiscal_quarter: str
-    ) -> "QuarterlyReportParseResult":
+    ) -> "RawQuantitativeData":
         """Scale fiscal-year-to-date flows to a run-rate annual figure.
 
         Multiplies the income statement and cash flow statement fields by
@@ -185,7 +185,7 @@ class QuarterlyReportParseResult(BaseModel):
             if value is not None and field_name in YEAR_TO_DATE_FLOW_FIELD_NAMES:
                 value = value * annualization_factor
             annualized_field_values[field_name] = value
-        return QuarterlyReportParseResult(**annualized_field_values)
+        return RawQuantitativeData(**annualized_field_values)
 
     # ------------------------------------------------------------------
     # Income statement
@@ -571,12 +571,12 @@ class QuarterlyReportParseResult(BaseModel):
     )
 
 
-def get_diffs(first: QuarterlyReportParseResult, second: QuarterlyReportParseResult) -> list[str]:
+def get_diffs(first: RawQuantitativeData, second: RawQuantitativeData) -> list[str]:
     """Describe every field whose value differs between ``first`` and
     ``second``, one string per differing field. Equal instances yield an
     empty list."""
     diffs = []
-    for field_name in QuarterlyReportParseResult.model_fields:
+    for field_name in RawQuantitativeData.model_fields:
         first_value = getattr(first, field_name)
         second_value = getattr(second, field_name)
         if first_value != second_value:
@@ -584,9 +584,9 @@ def get_diffs(first: QuarterlyReportParseResult, second: QuarterlyReportParseRes
     return diffs
 
 
-def count_populated_fields(parse_result: QuarterlyReportParseResult) -> int:
+def count_populated_fields(parse_result: RawQuantitativeData) -> int:
     """Number of fields on ``parse_result`` that are not ``None``."""
     return sum(
         getattr(parse_result, field_name) is not None
-        for field_name in QuarterlyReportParseResult.model_fields
+        for field_name in RawQuantitativeData.model_fields
     )

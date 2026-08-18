@@ -1,9 +1,9 @@
-"""Read each :class:`calculated_metrics.CalculatedMetrics` field into plain
+"""Read each :class:`calculated_metrics.CalculatedValues` field into plain
 language for interpretation agents.
 
 One ``interpret_<field_name>`` function per field;
 ``calculation_interpreter.py`` runs all of them in the model's declaration
-order. The reference bands come from the ``CalculatedMetrics``
+order. The reference bands come from the ``CalculatedValues``
 field descriptions, which distill ``docs/fundamental_metrics.md`` — that doc
 remains the authority when a band here needs justification.
 
@@ -30,22 +30,22 @@ Conventions:
 
 from dataclasses import dataclass
 
-from stock_analyst import metrics
+from stock_analyst import calculations
 
 
 @dataclass(frozen=True)
 class CalculationInterpretation:
-    """One ``CalculatedMetrics`` field read into plain language: the raw
+    """One ``CalculatedValues`` field read into plain language: the raw
     value, what it means at this specific level, and whether it sits outside
     the practitioner reference bands in ``docs/fundamental_metrics.md``.
     """
 
-    # The value exactly as it appears on CalculatedMetrics — a float for the
+    # The value exactly as it appears on CalculatedValues — a float for the
     # numeric metrics, a zone label string for the Altman zone fields, or None
     # when the metric was not computable.
     raw_value: float | str | None
 
-    # The CalculatedMetrics field name this interprets.
+    # The CalculatedValues field name this interprets.
     field_name: str
 
     # Plain-language reading of this specific value: which reference band it
@@ -2143,20 +2143,20 @@ def interpret_altman_z_zone(value: str | None) -> CalculationInterpretation:
             " financials."
         )
         falls_outside_normal_range = False
-    elif value == metrics.Z_SAFE:
+    elif value == calculations.Z_SAFE:
         interpretation = (
             "Altman Z safe zone (score above 2.99): the original 1968 model"
             " signals low bankruptcy risk over the next two years."
         )
         falls_outside_normal_range = False
-    elif value == metrics.Z_GREY:
+    elif value == calculations.Z_GREY:
         interpretation = (
             "Altman Z grey zone (score between 1.81 and 2.99):"
             " indeterminate — not predicted distress, but not clear of it."
             " Read together with the coverage and leverage metrics."
         )
         falls_outside_normal_range = True
-    elif value == metrics.Z_DISTRESS:
+    elif value == calculations.Z_DISTRESS:
         interpretation = (
             "Altman Z distress zone (score below 1.81): the model's"
             " historical bankruptcy-warning range — treat as a serious flag"
@@ -2220,20 +2220,20 @@ def interpret_altman_z_double_prime_zone(value: str | None) -> CalculationInterp
             " covers non-manufacturers; never apply it to financials."
         )
         falls_outside_normal_range = False
-    elif value == metrics.Z_SAFE:
+    elif value == calculations.Z_SAFE:
         interpretation = (
             "Altman Z'' safe zone (score above 2.6): low predicted"
             " bankruptcy risk under the non-manufacturer variant."
         )
         falls_outside_normal_range = False
-    elif value == metrics.Z_GREY:
+    elif value == calculations.Z_GREY:
         interpretation = (
             "Altman Z'' grey zone (score between 1.1 and 2.6):"
             " indeterminate — not predicted distress, but not clear of it."
             " Read together with the coverage and leverage metrics."
         )
         falls_outside_normal_range = True
-    elif value == metrics.Z_DISTRESS:
+    elif value == calculations.Z_DISTRESS:
         interpretation = (
             "Altman Z'' distress zone (score below 1.1): the variant's"
             " bankruptcy-warning range — treat as a serious flag and verify"

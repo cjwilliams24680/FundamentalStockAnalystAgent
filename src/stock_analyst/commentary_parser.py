@@ -4,46 +4,47 @@ from pathlib import Path
 from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 
-from stock_analyst.llm_models import DEFAULT_MODEL
+from stock_analyst.llm_provider import DEFAULT_MODEL
 from stock_analyst.pdf_reader import load_pdf_with_markdown_tables
 
 
-class Notes(BaseModel):
+class CommentaryParseResult(BaseModel):
     risks: list[str] = Field(description="A list of significant risks that the company is facing. If you don't see any, return an empty list.", default_factory=list)
     opportunities: list[str] = Field(description="A list of significant opportunities that the company is taking advantage of. If you don't see any, return an empty list.", default_factory=list)
     upcoming_catalysts: list[str] = Field(description="A list of significant upcoming catalysts that could impact the company's performance and/or remove ambiguity from the report. If you don't see any, return an empty list.", default_factory=list)
 
-    def merge(self, other: "Notes") -> "Notes":
-        return Notes(
+    def merge(self, other: "CommentaryParseResult") -> "CommentaryParseResult":
+        return CommentaryParseResult(
             risks=self.risks + other.risks,
             opportunities=self.opportunities + other.opportunities,
             upcoming_catalysts=self.upcoming_catalysts + other.upcoming_catalysts,
         )
 
+commentary_parsing_prompt = """
+You are a financial analyst. Your job is to comb over the financial 
+performance report and take notes on any interesting insights or patterns that you see."""
 
-notes_taker_agent = create_agent(
+commentary_parsing_agent = create_agent(
     model=DEFAULT_MODEL,
-    system_prompt="You are a financial analyst. Your job is to comb over the financial "
-    "performance report and take notes on any interesting insights or patterns that you see.",
-    response_format=Notes,
+    system_prompt=commentary_parsing_prompt,
+    response_format=CommentaryParseResult,
 )
 
-
-async def take_notes_on_filing(file_path: Path) -> Notes:
-    pages = load_pdf_with_markdown_tables(file_path)
-    notes = Notes(
+async def parse_commentary_from_report(path_to_report: Path) -> CommentaryParseResult:
+    pages = load_pdf_with_markdown_tables(path_to_report)
+    commentary = CommentaryParseResult(
         risks=[],
         opportunities=[],
         upcoming_catalysts=[],
     )
-    requests = [take_notes_from_page(page) for page in pages]
+    requests = [_parse_commentary_from_page(page) for page in pages]
     results = await asyncio.gather(*requests)
     for result in results:
-        notes = notes.merge(result)
-    return notes
+        commentary = commentary.merge(result)
+    return commentary
 
 
-async def take_notes_from_page(page: str) -> Notes:
+async def _parse_commentary_from_page(page: str) -> CommentaryParseResult:
     message = f"""
     I have a page from a financial performance report.
     Your job is to comb over the text on the page and take notes on any
@@ -63,5 +64,5 @@ async def take_notes_from_page(page: str) -> Notes:
     {page}
     """
 
-    result = await notes_taker_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+    result = await commentary_parsing_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
     return result["structured_response"]

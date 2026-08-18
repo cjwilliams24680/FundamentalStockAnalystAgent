@@ -2,7 +2,7 @@
 
 import pytest
 
-from stock_analyst.quarterly_report_parse_result import QuarterlyReportParseResult
+from stock_analyst.quarterly_report_parse_result import RawQuantitativeData
 from stock_analyst.run_all_calculations import run_all_calculations
 from stock_analyst.stock_directory import StockInfo
 
@@ -29,7 +29,7 @@ def test_valuation_ratios_from_a_first_quarter_filing_printed_in_millions():
     resulting valuation ratios must land in normal single-to-double-digit
     territory, not the millions seen before the unit-scale fix.
     """
-    as_printed_in_millions = QuarterlyReportParseResult(
+    as_printed_in_millions = RawQuantitativeData(
         revenue=81615.0,
         net_income=58321.0,
     )
@@ -45,7 +45,7 @@ def test_valuation_ratios_from_a_first_quarter_filing_printed_in_millions():
 
 
 def test_flow_over_flow_metrics_are_invariant_under_annualization():
-    parse_result = QuarterlyReportParseResult(
+    parse_result = RawQuantitativeData(
         revenue=100.0,
         net_income=20.0,
         operating_cash_flow=25.0,
