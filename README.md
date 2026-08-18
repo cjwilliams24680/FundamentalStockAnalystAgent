@@ -8,7 +8,8 @@ them, and interpretation agents read the results.
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) for dependency management
-- An OpenAI API key, or a local [Ollama](https://ollama.com/) install if running with a local model
+- An OpenAI API key and/or a local [Ollama](https://ollama.com/) install, depending on the
+  `LLM_CONFIG` setting (see below; the default uses both)
 
 ## Setup
 
@@ -24,7 +25,13 @@ them, and interpretation agents read the results.
    OPENAI_API_KEY=sk-...
    ```
 
-   To use a local Ollama model instead of OpenAI, add `USE_LOCAL_LLM=true`.
+   Optionally set `LLM_CONFIG` to control which models the agents use:
+
+   - unset (default) — local Ollama model for most agents, OpenAI for the
+     high-effort steps (needs both Ollama and an OpenAI key)
+   - `remote_only` — OpenAI models for everything (no Ollama needed)
+   - `local_only` — local Ollama only; steps that require the high-effort
+     OpenAI model (such as the filing downloader) will error
 
 3. Build the stock directory (fetches US-listed stock data from the Nasdaq screener,
    requires network access):
@@ -42,6 +49,11 @@ uv run analyze
 This prompts for a ticker symbol and runs the full pipeline: downloading and parsing the
 company's latest quarterly report, computing the fundamental metrics, and writing an
 interpreted markdown report to `output/`.
+
+## Example reports
+
+Example reports produced by the agent can be found in
+[`output/`](https://github.com/cjwilliams24680/FundamentalStockAnalystAgent/tree/main/output).
 
 ## Development
 

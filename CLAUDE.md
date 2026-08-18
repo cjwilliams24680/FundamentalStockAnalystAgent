@@ -23,7 +23,7 @@ uv run build-directory                             # rebuild data/stock_director
 
 The code lives in a src layout: `src/stock_analyst/` is the package, installed editable by `uv sync` (hatchling build backend), so `from stock_analyst import metrics` works everywhere — tests, notebook, and the `analyze`/`build-directory` console scripts defined in `[project.scripts]`. Repo-anchored filesystem locations (`data/`, `sandbox/`, `output/`) come from `src/stock_analyst/paths.py`.
 
-Secrets (OpenAI key, `USE_LOCAL_LLM` toggle for Ollama) live in `.env` (gitignored). `sandbox/` holds sample filing PDFs for experiments and is also gitignored.
+Secrets and model selection live in `.env` (gitignored): the OpenAI key, plus `LLM_CONFIG` (`remote_only`, `local_only`, or unset for the default local-Ollama-plus-remote-high-effort mix — see `llm_models.py`, which exposes `DEFAULT_MODEL` for most agents and `get_high_effort_model()` for the hardest steps). `sandbox/` holds sample filing PDFs for experiments and is also gitignored.
 
 ## Architecture
 
