@@ -55,8 +55,11 @@ async def write_report(
 
 
 def to_summary_string(interpretation: CalculationInterpretation) -> str:
+    raw_value = interpretation.raw_value
+    if isinstance(raw_value, float):
+        raw_value = f"{raw_value:.2f}"
     return (
-        f"{interpretation.calculation_name}: {interpretation.value} "
+        f"{interpretation.field_name}: {raw_value} "
         f"({interpretation.interpretation})"
     )
 

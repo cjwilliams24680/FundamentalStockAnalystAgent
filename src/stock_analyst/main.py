@@ -2,13 +2,14 @@ import asyncio
 
 from stock_analyst.calculation_interpreter import interpret_all_calculations
 from stock_analyst.document_parser import run_parser_table_by_table
-from stock_analyst.filing_downloader import DownloadedFiling, run_report_downloader
+from stock_analyst.file_download_models import DownloadedFiling
 from stock_analyst.notes_taker import take_notes_on_filing
 from stock_analyst.paths import OUTPUT_DIRECTORY
 from stock_analyst.report_writer import write_report
 from stock_analyst.run_all_calculations import run_all_calculations
 from stock_analyst.stock_directory import lookup
 from stock_analyst.welcome import collect_user_input
+from datetime import datetime
 
 
 async def main():
@@ -41,8 +42,8 @@ async def main():
 def save_report(report: str, downloaded_filing: DownloadedFiling) -> None:
     OUTPUT_DIRECTORY.mkdir(parents=True, exist_ok=True)
     report_file_name = (
-        f"{downloaded_filing.ticker}_{downloaded_filing.form_type}"
-        f"_{downloaded_filing.period_end_date}.md"
+        f"{downloaded_filing.ticker}"
+        f"_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.md"
     )
     report_path = OUTPUT_DIRECTORY / report_file_name
     with open(report_path, "w", encoding="utf-8") as file:

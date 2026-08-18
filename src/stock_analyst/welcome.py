@@ -1,22 +1,11 @@
-from dataclasses import dataclass
 from pathlib import Path
-from enum import Enum, auto
-import os
 from pick import pick
 
 from stock_analyst.stock_directory import StockInfo, lookup
-from stock_analyst.llm_models import get_model_config, ModelConfig
+from stock_analyst.llm_models import MODEL_CONFIG, ModelConfig
 from stock_analyst.filing_downloader import get_filings_url, run_report_downloader
 from stock_analyst.paths import SANDBOX_DIRECTORY
-
-@dataclass
-class DownloadedFiling:
-    ticker: str
-    file_path: Path
-
-class DownloadMethod(Enum):
-    Manual = auto()
-    WebCrawler = auto()
+from stock_analyst.file_download_models import DownloadedFiling, DownloadMethod
 
 def _prompt_for_ticker() -> str:
     ticker = input("Enter a ticker: ")
@@ -35,7 +24,7 @@ def _prompt_for_download_method(stock_info: StockInfo) -> DownloadMethod:
 
     # Web crawling is only available when remote LLMs are enabled.
     # Local LLMs aren't powerful enough to reliably perform this task.
-    if get_model_config() != ModelConfig.LOCAL_ONLY:
+    if MODEL_CONFIG != ModelConfig.LOCAL_ONLY:
         options.insert(0, web_crawler_option)
         foot_note = "\nAlternatively, I can crawl that web page and download the file for you.\n"
 
@@ -86,7 +75,8 @@ def _prompt_for_file_selection() -> Path:
 
 async def collect_user_input() -> DownloadedFiling:
     ticker = _prompt_for_ticker()
-    download_method = _prompt_for_download_method()
+    stock_info = lookup(ticker)
+    download_method = _prompt_for_download_method(stock_info)
     match download_method:
         case DownloadMethod.WebCrawler:
             return await run_report_downloader(ticker)

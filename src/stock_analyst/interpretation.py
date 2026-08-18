@@ -28,48 +28,39 @@ Conventions:
   an input.
 """
 
-from pydantic import BaseModel, ConfigDict, Field
+from dataclasses import dataclass
 
 from stock_analyst import metrics
 
 
-class CalculationInterpretation(BaseModel):
+@dataclass(frozen=True)
+class CalculationInterpretation:
     """One ``CalculatedMetrics`` field read into plain language: the raw
     value, what it means at this specific level, and whether it sits outside
     the practitioner reference bands in ``docs/fundamental_metrics.md``.
     """
 
-    model_config = ConfigDict(frozen=True)
+    # The value exactly as it appears on CalculatedMetrics — a float for the
+    # numeric metrics, a zone label string for the Altman zone fields, or None
+    # when the metric was not computable.
+    raw_value: float | str | None
 
-    raw_value: float | str | None = Field(
-        description=(
-            "The value exactly as it appears on CalculatedMetrics — a float"
-            " for the numeric metrics, a zone label string for the Altman"
-            " zone fields, or None when the metric was not computable."
-        ),
-    )
-    field_name: str = Field(
-        description="The CalculatedMetrics field name this interprets.",
-    )
-    interpretation: str = Field(
-        description=(
-            "Plain-language reading of this specific value: which reference"
-            " band it falls in, what that implies, and the sector caveats or"
-            " sibling metrics to cross-check. When raw_value is None, this"
-            " explains what the absence means for this field — sometimes"
-            " good news (no debt), sometimes a signal to fall back to a"
-            " sibling metric, sometimes just unreported data."
-        ),
-    )
-    falls_outside_normal_range: bool = Field(
-        description=(
-            "True when the value falls outside the reference bands in either"
-            " direction — unusually strong counts as much as unusually weak"
-            " (a net cash position is flagged even though it is a strength)."
-            " Read the interpretation for the direction; this flag only means"
-            " 'look closer', not 'bad'. Always False when raw_value is None."
-        ),
-    )
+    # The CalculatedMetrics field name this interprets.
+    field_name: str
+
+    # Plain-language reading of this specific value: which reference band it
+    # falls in, what that implies, and the sector caveats or sibling metrics
+    # to cross-check. When raw_value is None, this explains what the absence
+    # means for this field — sometimes good news (no debt), sometimes a signal
+    # to fall back to a sibling metric, sometimes just unreported data.
+    interpretation: str
+
+    # True when the value falls outside the reference bands in either
+    # direction — unusually strong counts as much as unusually weak (a net
+    # cash position is flagged even though it is a strength). Read the
+    # interpretation for the direction; this flag only means 'look closer',
+    # not 'bad'. Always False when raw_value is None.
+    falls_outside_normal_range: bool
 
 
 # ---------------------------------------------------------------------------

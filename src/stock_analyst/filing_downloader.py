@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 
 import requests
@@ -9,7 +8,7 @@ from pydantic import BaseModel, Field
 from stock_analyst.llm_models import get_high_effort_model
 from stock_analyst.paths import SANDBOX_DIRECTORY
 from stock_analyst.stock_directory import StockInfo, lookup
-from stock_analyst.welcome import DownloadedFiling
+from stock_analyst.file_download_models import DownloadedFiling
 
 DOWNLOAD_DIRECTORY = SANDBOX_DIRECTORY
 
