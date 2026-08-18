@@ -17,7 +17,7 @@ from stock_analyst.table_parser import (
     turn_table_to_string,
 )
 
-quantitative_parsing_prompt = """
+_quantitative_parsing_prompt = """
 You are a financial analyst.
 
 You are given a 10Q document.
@@ -38,8 +38,8 @@ Record numbers exactly as printed in the table. Never convert them for unit
 captions like "in millions" or "in thousands" — the pipeline applies the unit
 scale afterward.
 """
-quantitative_parsing_agent = create_agent(
-    system_prompt=quantitative_parsing_prompt,
+_quantitative_parsing_agent = create_agent(
+    system_prompt=_quantitative_parsing_prompt,
     model=DEFAULT_MODEL,
     response_format=RawQuantitativeData,
 )
@@ -76,7 +76,7 @@ Here is a table from a 10Q document. I would like you to parse it for financial 
 {turn_table_to_string(table)}
 """
 
-    result = await quantitative_parsing_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+    result = await _quantitative_parsing_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
     parse_result = result["structured_response"]
 
     # Scale per table, before merging: tables can state different scales.

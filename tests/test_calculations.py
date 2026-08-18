@@ -1,4 +1,4 @@
-"""Tests for metrics.py.
+"""Tests for calculations.py.
 
 Expected values are hand-computed from a single coherent fake company:
 revenue 1000, cost of goods sold 600, operating income 200, pretax income 160,
@@ -12,7 +12,7 @@ dividends 36, buybacks 50, issuance 10.
 
 import pytest
 
-from stock_analyst import metrics as m
+from stock_analyst import calculations as m
 
 approx = pytest.approx
 

@@ -1,12 +1,12 @@
-"""Run every per-field interpretation function in :mod:`interpretation` over
-one :class:`calculated_metrics.CalculatedMetrics` — the interpretation
-counterpart to ``run_all_calculations.py``.
+"""Run every per-field interpretation function in :mod:`interpretations` over
+one :class:`calculated_values.CalculatedValues` — the interpretation
+counterpart to ``calculations_runner.py``.
 
 The master function calls each ``interpret_<field_name>`` in the model's
 declaration order, under the same section banners, and collects the resulting
-:class:`interpretation.CalculationInterpretation` objects into a list. Order
+:class:`interpretations.CalculationInterpretation` objects into a list. Order
 is meaningful for prompt construction, and the completeness test in
-``tests/test_calculation_interpreter.py`` proves every field is covered.
+``tests/test_interpretation_runner.py`` proves every field is covered.
 """
 
 from stock_analyst import interpretations as interpretations
@@ -17,7 +17,7 @@ from stock_analyst.interpretations import CalculationInterpretation
 def interpret_calculated_values(
     calculated_values: CalculatedValues,
 ) -> list[CalculationInterpretation]:
-    """Interpret every ``CalculatedMetrics`` field, in declaration order."""
+    """Interpret every ``CalculatedValues`` field, in declaration order."""
     return [
         # ------------------------------------------------------------------
         # Building blocks shared across pillars

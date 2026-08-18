@@ -27,12 +27,12 @@ class StockInfo:
     ipo_year: int | None
 
 
-def normalize_ticker(symbol: str) -> str:
+def _normalize_ticker(symbol: str) -> str:
     """Canonical ticker form: uppercase, share classes as dots (BRK/A -> BRK.A)."""
     return symbol.strip().upper().replace("/", ".")
 
 
-def load_directory(path: Path | str = DEFAULT_PATH) -> dict:
+def _load_directory(path: Path | str = DEFAULT_PATH) -> dict:
     """Load (and cache) the directory. Raises FileNotFoundError with a hint
     if the batch builder has not been run yet."""
     global _directory
@@ -49,8 +49,8 @@ def load_directory(path: Path | str = DEFAULT_PATH) -> dict:
 
 def lookup(ticker: str) -> StockInfo | None:
     """Return StockInfo for a ticker, or None if it is not a US-listed stock."""
-    directory = load_directory()
-    canonical = normalize_ticker(ticker)
+    directory = _load_directory()
+    canonical = _normalize_ticker(ticker)
     record = directory["stocks"].get(canonical)
     if record is None:
         return None

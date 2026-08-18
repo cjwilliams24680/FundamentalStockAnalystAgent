@@ -10,7 +10,7 @@ from stock_analyst.paths import SANDBOX_DIRECTORY
 from stock_analyst.stock_directory import StockInfo, lookup
 from stock_analyst.report_download_models import DownloadedReport
 
-DOWNLOAD_DIRECTORY = SANDBOX_DIRECTORY
+_DOWNLOAD_DIRECTORY = SANDBOX_DIRECTORY
 
 
 class QuarterlyReportFilingRow(BaseModel):
@@ -46,7 +46,7 @@ Return the information from that row, including the PDF link's href.
 """
 
 
-def download_filing(download_link: str, destination: Path) -> None:
+def _download_filing(download_link: str, destination: Path) -> None:
     """Fetch the filing's href directly over HTTP.
 
     Clicking the link in the browser opens a new tab and never fires a
@@ -110,8 +110,8 @@ async def run_report_downloader(ticker: str) -> DownloadedReport:
     file_name = (
         f"{stock_info.ticker}_{filing_row.form_type}_ended_{period_end_date_for_filename}.pdf"
     )
-    destination = DOWNLOAD_DIRECTORY / file_name
-    download_filing(filing_row.download_link, destination)
+    destination = _DOWNLOAD_DIRECTORY / file_name
+    _download_filing(filing_row.download_link, destination)
     print(f"Saved {destination} ({destination.stat().st_size:,} bytes)")
 
     return DownloadedReport(

@@ -91,7 +91,7 @@ reference doc. New code in this repo should follow the same rule.
   Exception: `sloan_accruals_ratio` takes `investing_cash_flow` with its natural
   statement sign (usually negative), matching the published formula.
 - **Ratios return decimal fractions** (0.25 = 25%); day-count metrics return days
-  (365-day year via the `DAYS_PER_YEAR` constant).
+  (365-day year via the `_DAYS_PER_YEAR` constant).
 - **Flow inputs must cover the same period** (typically TTM); balance-sheet inputs
   are point-in-time. Where the CFA convention calls for an average balance the
   parameter is named `average_...` — use the `average(beginning, ending)` helper. The

@@ -109,7 +109,7 @@ BALANCE_SHEET_FIELD_NAMES = frozenset(
 
 SHARE_COUNT_FIELD_NAMES = frozenset({"weighted_average_diluted_shares"})
 
-ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER = {
+_ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER = {
     "Q1": 4.0,
     "Q2": 2.0,
     "Q3": 4.0 / 3.0,
@@ -176,9 +176,9 @@ class RawQuantitativeData(BaseModel):
         ``weighted_average_diluted_shares`` (a period average, not a
         cumulative flow). Raises ``ValueError`` for an unknown quarter.
         """
-        if fiscal_quarter not in ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER:
+        if fiscal_quarter not in _ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER:
             raise ValueError(f"Invalid fiscal quarter: {fiscal_quarter}")
-        annualization_factor = ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER[fiscal_quarter]
+        annualization_factor = _ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER[fiscal_quarter]
         annualized_field_values = {}
         for field_name in type(self).model_fields:
             value = getattr(self, field_name)

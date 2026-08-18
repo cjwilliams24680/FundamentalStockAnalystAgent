@@ -1,8 +1,8 @@
-"""Tests for quarterly_report_parse_result.py."""
+"""Tests for quantitative_data.py."""
 
 import pytest
 
-from stock_analyst.quarterly_report_parse_result import (
+from stock_analyst.quantitative_data import (
     BALANCE_SHEET_FIELD_NAMES,
     SHARE_COUNT_FIELD_NAMES,
     YEAR_TO_DATE_FLOW_FIELD_NAMES,

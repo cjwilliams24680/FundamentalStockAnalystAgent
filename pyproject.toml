@@ -22,7 +22,7 @@ dependencies = [
 
 [project.scripts]
 analyze = "stock_analyst.main:run"
-build-directory = "stock_analyst.build_directory:main"
+build-directory = "stock_analyst.build_stock_directory:_main"
 
 [build-system]
 requires = ["hatchling"]

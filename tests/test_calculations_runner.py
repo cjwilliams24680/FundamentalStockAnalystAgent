@@ -1,9 +1,9 @@
-"""Tests for run_all_calculations.py."""
+"""Tests for calculations_runner.py."""
 
 import pytest
 
-from stock_analyst.quarterly_report_parse_result import RawQuantitativeData
-from stock_analyst.run_all_calculations import run_all_calculations
+from stock_analyst.calculations_runner import run_all_calculations
+from stock_analyst.quantitative_data import RawQuantitativeData
 from stock_analyst.stock_directory import StockInfo
 
 

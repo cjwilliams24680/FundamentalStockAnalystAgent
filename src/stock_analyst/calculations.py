@@ -30,7 +30,7 @@ Conventions
 
 from dataclasses import dataclass
 
-DAYS_PER_YEAR = 365
+_DAYS_PER_YEAR = 365
 
 
 # ---------------------------------------------------------------------------
@@ -273,7 +273,7 @@ def days_inventory_on_hand(
         return None
     if cost_of_goods_sold <= 0 or average_inventory <= 0:
         return None
-    return DAYS_PER_YEAR / (cost_of_goods_sold / average_inventory)
+    return _DAYS_PER_YEAR / (cost_of_goods_sold / average_inventory)
 
 
 def days_sales_outstanding(
@@ -281,7 +281,7 @@ def days_sales_outstanding(
 ) -> float | None:
     if not _present(revenue, average_receivables) or revenue <= 0 or average_receivables <= 0:
         return None
-    return DAYS_PER_YEAR / (revenue / average_receivables)
+    return _DAYS_PER_YEAR / (revenue / average_receivables)
 
 
 def purchases(cost_of_goods_sold: float | None, inventory_change: float | None) -> float | None:
@@ -298,7 +298,7 @@ def days_payables_outstanding(
     be derived."""
     if not _present(purchases, average_payables) or purchases <= 0 or average_payables <= 0:
         return None
-    return DAYS_PER_YEAR / (purchases / average_payables)
+    return _DAYS_PER_YEAR / (purchases / average_payables)
 
 
 def cash_conversion_cycle(
@@ -376,7 +376,7 @@ def defensive_interval_ratio(
         non_cash_charges,
     ):
         return None
-    daily_expenditures = (operating_expenses - non_cash_charges) / DAYS_PER_YEAR
+    daily_expenditures = (operating_expenses - non_cash_charges) / _DAYS_PER_YEAR
     if daily_expenditures <= 0:
         return None
     return (cash_and_equivalents + short_term_investments + receivables) / daily_expenditures
@@ -1014,7 +1014,7 @@ def dupont_five_factor(
 # Composite: Beneish M-Score
 # ---------------------------------------------------------------------------
 
-M_SCORE_THRESHOLD = -1.78
+_M_SCORE_THRESHOLD = -1.78
 
 
 @dataclass(frozen=True)
@@ -1043,7 +1043,7 @@ class BeneishResult:
     @property
     def likely_manipulator(self) -> bool:
         """M > -1.78 flags a likely earnings manipulator (Beneish 1999)."""
-        return self.m_score > M_SCORE_THRESHOLD
+        return self.m_score > _M_SCORE_THRESHOLD
 
 
 def beneish_m_score(current: BeneishPeriod, prior: BeneishPeriod) -> BeneishResult | None:

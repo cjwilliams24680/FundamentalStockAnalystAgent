@@ -129,7 +129,7 @@ def turn_tables_to_string(tables: list[FinancialReportTable]) -> str:
     return "\n===============\n".join([turn_table_to_string(table) for table in tables])
 
 
-data_extraction_system_prompt = """
+_data_extraction_system_prompt = """
 You are a financial analyst.
 
 You are given a 10Q document.
@@ -138,20 +138,20 @@ You are given a 10Q document.
 Your job is to trim down the document to the most relevant parts and clean it up,
 so that it is easier for the parsing agent to process.
 """
-table_extraction_agent = create_agent(
-    system_prompt=data_extraction_system_prompt,
+_table_extraction_agent = create_agent(
+    system_prompt=_data_extraction_system_prompt,
     model=DEFAULT_MODEL,
     response_format=FinancialReportTables,
 )
 
-table_cleaning_agent = create_agent(
-    system_prompt=data_extraction_system_prompt,
+_table_cleaning_agent = create_agent(
+    system_prompt=_data_extraction_system_prompt,
     model=DEFAULT_MODEL,
     response_format=CleanedFinancialReportTable,
 )
 
 
-async def extract_tables_from_report_page(
+async def _extract_tables_from_report_page(
     page: str, quarter_info: EarningsPeriodInfo
 ) -> list[FinancialReportTable]:
     message = f"""
@@ -179,7 +179,7 @@ Here is the page:
 {page}
 """
 
-    result = await table_extraction_agent.ainvoke(
+    result = await _table_extraction_agent.ainvoke(
         {"messages": [{"role": "user", "content": message}]}
     )
     return result["structured_response"].tables
@@ -212,7 +212,7 @@ Here is the table that I want you to refine:
 """
 
     trimmed_table = (
-        await table_cleaning_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+        await _table_cleaning_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
     )["structured_response"]
 
     cleaned_markdown_table = replace_parenthesized_numbers_with_negative_values(
@@ -230,17 +230,17 @@ async def extract_tables_from_report(
 ) -> list[FinancialReportTable]:
     tables = []
     results = await asyncio.gather(
-        *[extract_cleaned_tables_from_page(page, quarter_info) for page in pages]
+        *[_extract_cleaned_tables_from_page(page, quarter_info) for page in pages]
     )
     for result in results:
         tables.extend(result)
     return tables
 
 
-async def extract_cleaned_tables_from_page(
+async def _extract_cleaned_tables_from_page(
     page: str, quarter_info: EarningsPeriodInfo
 ) -> list[FinancialReportTable]:
-    tables_from_page = await extract_tables_from_report_page(page, quarter_info)
+    tables_from_page = await _extract_tables_from_report_page(page, quarter_info)
     tables_from_page = [table for table in tables_from_page if not table.flagged_as_irrelevant]
     cleaned_tables = await asyncio.gather(
         *[clean_table(table, quarter_info) for table in tables_from_page]

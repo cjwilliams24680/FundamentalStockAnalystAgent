@@ -6,7 +6,7 @@ uv installs the project in editable mode (the package is imported from src/).
 
 from pathlib import Path
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
-DATA_DIRECTORY = REPOSITORY_ROOT / "data"
-SANDBOX_DIRECTORY = REPOSITORY_ROOT / "sandbox"
-OUTPUT_DIRECTORY = REPOSITORY_ROOT / "output"
+_REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIRECTORY = _REPOSITORY_ROOT / "data"
+SANDBOX_DIRECTORY = _REPOSITORY_ROOT / "sandbox"
+OUTPUT_DIRECTORY = _REPOSITORY_ROOT / "output"

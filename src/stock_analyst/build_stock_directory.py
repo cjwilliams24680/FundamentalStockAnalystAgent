@@ -19,24 +19,24 @@ import requests
 
 from stock_analyst.stock_directory import DEFAULT_PATH
 
-SCREENER_URL = "https://api.nasdaq.com/api/screener/stocks"
-EXCHANGES = ["NASDAQ", "NYSE", "AMEX"]
+_SCREENER_URL = "https://api.nasdaq.com/api/screener/stocks"
+_EXCHANGES = ["NASDAQ", "NYSE", "AMEX"]
 # Write where the runtime lookup reads, so the two can never disagree.
-OUTPUT_PATH = DEFAULT_PATH
+_OUTPUT_PATH = DEFAULT_PATH
 
 # The endpoint hangs on default python UAs; a browser-like UA is required.
-HEADERS = {
+_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
     ),
     "Accept": "application/json",
 }
-TIMEOUT_SECONDS = 30
-MAX_ATTEMPTS = 3
+_TIMEOUT_SECONDS = 30
+_MAX_ATTEMPTS = 3
 # Abort rather than clobber a good directory if the endpoint returns a
 # suspiciously small result set.
-MIN_TOTAL_COUNT = 5000
+_MIN_TOTAL_COUNT = 5000
 
 
 def _normalize_ticker(symbol: str) -> str:
@@ -47,10 +47,10 @@ def _normalize_ticker(symbol: str) -> str:
 def _fetch_exchange(exchange: str) -> list[dict]:
     params = {"tableonly": "true", "limit": 25, "exchange": exchange, "download": "true"}
     last_error: Exception | None = None
-    for attempt in range(1, MAX_ATTEMPTS + 1):
+    for attempt in range(1, _MAX_ATTEMPTS + 1):
         try:
             response = requests.get(
-                SCREENER_URL, params=params, headers=HEADERS, timeout=TIMEOUT_SECONDS
+                _SCREENER_URL, params=params, headers=_HEADERS, timeout=_TIMEOUT_SECONDS
             )
             response.raise_for_status()
             rows = response.json()["data"]["rows"]
@@ -59,11 +59,11 @@ def _fetch_exchange(exchange: str) -> list[dict]:
             return rows
         except (requests.RequestException, KeyError, ValueError) as error:
             last_error = error
-            if attempt < MAX_ATTEMPTS:
+            if attempt < _MAX_ATTEMPTS:
                 delay = 2**attempt
                 print(f"  {exchange}: attempt {attempt} failed ({error}); retrying in {delay}s")
                 time.sleep(delay)
-    raise RuntimeError(f"failed to fetch {exchange} after {MAX_ATTEMPTS} attempts: {last_error}")
+    raise RuntimeError(f"failed to fetch {exchange} after {_MAX_ATTEMPTS} attempts: {last_error}")
 
 
 def _parse_market_cap(raw: str) -> float | None:
@@ -84,7 +84,7 @@ def _parse_ipo_year(raw: str) -> int | None:
 def _build_directory() -> dict:
     stocks: dict[str, dict] = {}
     counts: dict[str, int] = {}
-    for exchange in EXCHANGES:
+    for exchange in _EXCHANGES:
         print(f"Fetching {exchange}...")
         rows = _fetch_exchange(exchange)
         counts[exchange] = len(rows)
@@ -108,9 +108,9 @@ def _build_directory() -> dict:
         print(f"  {exchange}: {len(rows)} rows")
 
     counts["total"] = len(stocks)
-    if counts["total"] < MIN_TOTAL_COUNT:
+    if counts["total"] < _MIN_TOTAL_COUNT:
         raise RuntimeError(
-            f"only {counts['total']} tickers fetched (expected >= {MIN_TOTAL_COUNT}); "
+            f"only {counts['total']} tickers fetched (expected >= {_MIN_TOTAL_COUNT}); "
             "refusing to overwrite the directory"
         )
 
@@ -143,10 +143,10 @@ def _main() -> int:
     except RuntimeError as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    _write_atomic(directory, OUTPUT_PATH)
+    _write_atomic(directory, _OUTPUT_PATH)
     counts = directory["metadata"]["counts"]
     print(
-        f"Wrote {counts['total']} tickers to {OUTPUT_PATH} "
+        f"Wrote {counts['total']} tickers to {_OUTPUT_PATH} "
         f"({', '.join(f'{k}: {v}' for k, v in counts.items() if k != 'total')})"
     )
     return 0

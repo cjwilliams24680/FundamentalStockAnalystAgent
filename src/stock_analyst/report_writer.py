@@ -8,7 +8,7 @@ from stock_analyst.llm_provider import DEFAULT_MODEL, get_model_name
 from stock_analyst.quantitative_data import RawQuantitativeData
 from stock_analyst.stock_directory import StockInfo
 
-author_agent = create_agent(
+_author_agent = create_agent(
     model=DEFAULT_MODEL,
     system_prompt="You are a financial analyst. You have been given information about "
     "a company's financial performance report. Your job is to summarize the report "
@@ -38,19 +38,19 @@ async def write_report(
 ---
 
 ## Summary
-{await summarize_unusual_values(unusual_values)}
+{await _summarize_unusual_values(unusual_values)}
 
-{await summarize_commentary(commentary)}
+{await _summarize_commentary(commentary)}
 
 ---
 
 ## Unusual Values
-{write_unusual_values_as_markdown(unusual_values)}
+{_write_unusual_values_as_markdown(unusual_values)}
 
 ---
 
 ## Commentary
-{to_markdown_list(commentary)}
+{_to_markdown_list(commentary)}
 
 ---
 
@@ -59,43 +59,43 @@ async def write_report(
 
 """
 
-async def summarize_unusual_values(
+async def _summarize_unusual_values(
     unusual_values: list[CalculationInterpretation],
 ) -> str:
     message = f"""
 I ran a fundamental analysis calculations on the company's financial performance report.
 
 Here are the unusual values found in the calculations:
-{write_unusual_values_as_markdown(unusual_values)}
+{_write_unusual_values_as_markdown(unusual_values)}
 
 Please summarize the unusual values concisely in one paragraph.
 Add a few sentences of commentary at the end about the company's valuation and future performance
 """
-    result = await author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+    result = await _author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
     return result["messages"][-1].text
 
 
-async def summarize_commentary(
+async def _summarize_commentary(
     commentary: list[str],
 ) -> str:
     message = f"""
 I ran a fundamental analysis calculations on the company's financial performance report.
 
 Here are some interesting insights from the report:
-{to_markdown_list(commentary)}
+{_to_markdown_list(commentary)}
 
 Please summarize the insights concisely in one paragraph.
 Make sure to highlight any insights that could have a significant impact
 on the company's valuation and future performance.
 """
-    result = await author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+    result = await _author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
     return result["messages"][-1].text
 
 
-def to_markdown_list(items: list[str]) -> str:
+def _to_markdown_list(items: list[str]) -> str:
     return "\n".join([f"- {item}" for item in items])
 
-def write_unusual_values_as_markdown(unusual_values: list[CalculationInterpretation]) -> str:
+def _write_unusual_values_as_markdown(unusual_values: list[CalculationInterpretation]) -> str:
     output = ""
     for value in unusual_values:
         output += f"**{value.field_name}**: {value.raw_value:.2f}\n({value.interpretation})\n\n"
