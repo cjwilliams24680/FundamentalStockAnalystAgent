@@ -1,9 +1,17 @@
 """Tests for table_parser.py."""
 
 from stock_analyst.table_parser import (
+    FinancialStatementUnitScale,
     replace_dash_only_table_cells_with_zero_values,
     replace_parenthesized_numbers_with_negative_values,
 )
+
+
+def test_unit_scale_multipliers():
+    assert FinancialStatementUnitScale.UNITS.multiplier == 1.0
+    assert FinancialStatementUnitScale.THOUSANDS.multiplier == 1_000.0
+    assert FinancialStatementUnitScale.MILLIONS.multiplier == 1_000_000.0
+    assert FinancialStatementUnitScale.BILLIONS.multiplier == 1_000_000_000.0
 
 
 def test_parenthesized_decimal_number_becomes_negative():

@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 from stock_analyst.calculation_interpreter import interpret_all_calculations
 from stock_analyst.document_parser import run_parser_table_by_table
@@ -9,7 +10,6 @@ from stock_analyst.report_writer import write_report
 from stock_analyst.run_all_calculations import run_all_calculations
 from stock_analyst.stock_directory import lookup
 from stock_analyst.welcome import collect_user_input
-from datetime import datetime
 
 
 async def main():
@@ -18,16 +18,17 @@ async def main():
         return
 
     print("Parsing filing...")
-    parse_result = await run_parser_table_by_table(download_result.file_path)
+    parsed_report = await run_parser_table_by_table(download_result.file_path)
 
     print("Taking notes...")
     notes = await take_notes_on_filing(download_result.file_path)
-    
+
     print("Running calculations...")
     stock_info = lookup(download_result.ticker)
     calculated_metrics = run_all_calculations(
         stock_info=stock_info,
-        parse_result=parse_result,
+        parse_result=parsed_report.parse_result,
+        fiscal_quarter=parsed_report.fiscal_quarter,
     )
 
     print("Interpreting output...")
@@ -40,7 +41,7 @@ async def main():
         downloaded_filing=download_result,
         unusual_values=unusual_values,
         commentary=notes.risks + notes.opportunities + notes.upcoming_catalysts,
-        parsed_values=parse_result,
+        parsed_values=parsed_report.parse_result,
     )
 
     print("Saving report...")
@@ -52,8 +53,7 @@ async def main():
 def save_report(report: str, downloaded_filing: DownloadedFiling) -> None:
     OUTPUT_DIRECTORY.mkdir(parents=True, exist_ok=True)
     report_file_name = (
-        f"{downloaded_filing.ticker}"
-        f"_{datetime.now().strftime("%Y-%m-%d_%H:%M:%S")}.md"
+        f"{downloaded_filing.ticker}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.md"
     )
     report_path = OUTPUT_DIRECTORY / report_file_name
     with open(report_path, "w", encoding="utf-8") as file:

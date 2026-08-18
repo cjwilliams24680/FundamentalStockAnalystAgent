@@ -39,9 +39,82 @@ reported (mirroring the gaps in real XBRL data); capital expenditures,
 dividends paid, buybacks, and stock issuance are positive magnitudes with the
 cash-flow-statement sign stripped, while ``investing_cash_flow`` keeps its
 statement sign (usually negative).
+
+The "absolute amounts" convention is implemented in two steps: the parsing
+agent records numbers exactly as printed (filings state a scale such as
+'(In millions)'), and the pipeline multiplies each table's parse result by
+its stated scale (``table_parser.FinancialStatementUnitScale``) via
+:meth:`QuarterlyReportParseResult.apply_unit_scale` before merging — so a
+populated instance holds whole currency units. Flows remain fiscal-year-to-
+date here; annualizing them to a run rate for metric comparability is
+``run_all_calculations``' responsibility, via
+:meth:`QuarterlyReportParseResult.annualize_year_to_date_flow_values`. The
+module-level frozensets (``YEAR_TO_DATE_FLOW_FIELD_NAMES``,
+``BALANCE_SHEET_FIELD_NAMES``, ``SHARE_COUNT_FIELD_NAMES``) classify every
+field for those transformations and must partition the model exactly.
 """
 
 from pydantic import BaseModel, ConfigDict, Field
+
+# Every field is one of these three kinds; tests assert the sets partition
+# ``model_fields`` exactly, so any new field must be classified here.
+YEAR_TO_DATE_FLOW_FIELD_NAMES = frozenset(
+    {
+        # Income statement
+        "revenue",
+        "cost_of_goods_sold",
+        "operating_income",
+        "pretax_income",
+        "income_tax_expense",
+        "net_income",
+        "income_from_continuing_operations",
+        "interest_expense",
+        "operating_expenses",
+        "selling_general_and_administrative_expense",
+        "preferred_dividends",
+        # Cash flow statement
+        "operating_cash_flow",
+        "investing_cash_flow",
+        "depreciation_and_amortization",
+        "depreciation",
+        "non_cash_charges",
+        "capital_expenditures",
+        "dividends_paid",
+        "buybacks",
+        "common_stock_issued",
+    }
+)
+
+BALANCE_SHEET_FIELD_NAMES = frozenset(
+    {
+        "cash_and_equivalents",
+        "short_term_investments",
+        "receivables",
+        "inventory",
+        "current_assets",
+        "net_property_plant_and_equipment",
+        "total_assets",
+        "short_term_debt",
+        "long_term_debt",
+        "lease_obligations",
+        "payables",
+        "current_liabilities",
+        "total_liabilities",
+        "retained_earnings",
+        "preferred_equity",
+        "minority_interest",
+        "shareholders_equity",
+    }
+)
+
+SHARE_COUNT_FIELD_NAMES = frozenset({"weighted_average_diluted_shares"})
+
+ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER = {
+    "Q1": 4.0,
+    "Q2": 2.0,
+    "Q3": 4.0 / 3.0,
+    "Q4": 1.0,
+}
 
 
 class QuarterlyReportParseResult(BaseModel):
@@ -65,6 +138,54 @@ class QuarterlyReportParseResult(BaseModel):
             for field_name in type(self).model_fields
         }
         return QuarterlyReportParseResult(**merged_field_values)
+
+    def apply_unit_scale(
+        self, monetary_value_multiplier: float, share_count_multiplier: float
+    ) -> "QuarterlyReportParseResult":
+        """Convert values recorded as printed into whole currency units.
+
+        Filings print amounts at a stated scale (e.g. '(In millions)'); the
+        parsing agent records numbers exactly as printed, and this method
+        multiplies them out deterministically. Monetary fields use
+        ``monetary_value_multiplier``; share-count fields use
+        ``share_count_multiplier`` (equal to the monetary one under the
+        common 'except per share data' caption, 1.0 when the caption
+        excludes share amounts from the scale). ``None`` stays ``None``.
+        """
+        scaled_field_values = {}
+        for field_name in type(self).model_fields:
+            value = getattr(self, field_name)
+            if value is None:
+                scaled_field_values[field_name] = None
+            elif field_name in SHARE_COUNT_FIELD_NAMES:
+                scaled_field_values[field_name] = value * share_count_multiplier
+            else:
+                scaled_field_values[field_name] = value * monetary_value_multiplier
+        return QuarterlyReportParseResult(**scaled_field_values)
+
+    def annualize_year_to_date_flow_values(
+        self, fiscal_quarter: str
+    ) -> "QuarterlyReportParseResult":
+        """Scale fiscal-year-to-date flows to a run-rate annual figure.
+
+        Multiplies the income statement and cash flow statement fields by
+        4 / quarter number (Q1 x4, Q2 x2, Q3 x4/3, Q4 x1) so metrics that
+        compare a flow against a balance-sheet stock or market
+        capitalization are comparable to annual reference bands.
+        Balance-sheet fields are point-in-time and stay untouched, as does
+        ``weighted_average_diluted_shares`` (a period average, not a
+        cumulative flow). Raises ``ValueError`` for an unknown quarter.
+        """
+        if fiscal_quarter not in ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER:
+            raise ValueError(f"Invalid fiscal quarter: {fiscal_quarter}")
+        annualization_factor = ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER[fiscal_quarter]
+        annualized_field_values = {}
+        for field_name in type(self).model_fields:
+            value = getattr(self, field_name)
+            if value is not None and field_name in YEAR_TO_DATE_FLOW_FIELD_NAMES:
+                value = value * annualization_factor
+            annualized_field_values[field_name] = value
+        return QuarterlyReportParseResult(**annualized_field_values)
 
     # ------------------------------------------------------------------
     # Income statement

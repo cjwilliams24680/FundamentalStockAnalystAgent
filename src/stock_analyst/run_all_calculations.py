@@ -21,6 +21,14 @@ Two conventions:
   period-over-period changes cannot be computed from a single parse result;
   they are descoped until multiple reports are supported and have no
   ``CalculatedMetrics`` fields — see ``docs/descoped_multi_period_metrics.md``.
+
+Flow values arrive fiscal-year-to-date (the parse result's contract) and are
+annualized to a run rate here — every flow field is multiplied by
+4 / quarter number before any metric is computed. The uniform factor leaves
+flow/flow metrics (margins, coverage, payout, cash-flow-to-net-income)
+unchanged, while flow-vs-stock and flow-vs-market-cap metrics (valuation
+ratios, yields, Altman terms) become run-rate annual, comparable to the
+annual reference bands in ``calculated_metrics.py``.
 """
 
 from stock_analyst import metrics
@@ -34,9 +42,11 @@ def _zero_if_missing(value: float | None) -> float:
 
 
 def run_all_calculations(
-    stock_info: StockInfo, parse_result: QuarterlyReportParseResult
+    stock_info: StockInfo, parse_result: QuarterlyReportParseResult, fiscal_quarter: str
 ) -> CalculatedMetrics:
     """Compute every currently computable metric for one reporting period."""
+
+    parse_result = parse_result.annualize_year_to_date_flow_values(fiscal_quarter)
 
     # Building blocks, computed first because later metrics consume them.
     gross_profit = metrics.gross_profit(parse_result.revenue, parse_result.cost_of_goods_sold)

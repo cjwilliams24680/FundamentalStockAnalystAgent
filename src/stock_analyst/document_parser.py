@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import dataclass
 from pathlib import Path
 
 from langchain.agents import create_agent
@@ -32,6 +33,10 @@ Just use 0. Do not try to infer the value.
 
 Sometimes values will be surrounded by parentheses. This represents a negative value.
 Use the negative value of the number inside the parentheses.
+
+Record numbers exactly as printed in the table. Never convert them for unit
+captions like "in millions" or "in thousands" — the pipeline applies the unit
+scale afterward.
 """
 parser_agent = create_agent(
     system_prompt=parser_system_prompt,
@@ -40,7 +45,13 @@ parser_agent = create_agent(
 )
 
 
-async def run_parser_table_by_table(file_path: Path) -> QuarterlyReportParseResult:
+@dataclass(frozen=True)
+class ParsedQuarterlyReport:
+    parse_result: QuarterlyReportParseResult
+    fiscal_quarter: str  # "Q1".."Q4", from date_parser.QuarterParsingParameters
+
+
+async def run_parser_table_by_table(file_path: Path) -> ParsedQuarterlyReport:
     pages = load_pdf_with_markdown_tables(file_path)
     quarter_info = await extract_quarter_info(pages)
     params = get_quarter_parsing_parameters(quarter_info)
@@ -55,7 +66,7 @@ async def run_parser_table_by_table(file_path: Path) -> QuarterlyReportParseResu
     for result in results:
         merged_result = merged_result.merge(result)
 
-    return merged_result
+    return ParsedQuarterlyReport(parse_result=merged_result, fiscal_quarter=params.quarter)
 
 
 async def run_parser_on_table(table: FinancialReportTable) -> QuarterlyReportParseResult:
@@ -66,4 +77,11 @@ Here is a table from a 10Q document. I would like you to parse it for financial 
 """
 
     result = await parser_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
-    return result["structured_response"]
+    parse_result = result["structured_response"]
+
+    # Scale per table, before merging: tables can state different scales.
+    monetary_value_multiplier = table.unit_scale.multiplier
+    share_count_multiplier = (
+        monetary_value_multiplier if table.share_counts_reported_in_stated_scale else 1.0
+    )
+    return parse_result.apply_unit_scale(monetary_value_multiplier, share_count_multiplier)

@@ -2,11 +2,18 @@ import pdfplumber
 
 
 def load_pdf_with_markdown_tables(pdf_path: str) -> list[str]:
+    """One string per PDF page: page marker, markdown tables, then page text.
+
+    Everything from a page stays together so downstream agents see a table
+    next to its surrounding text — in particular the unit-scale caption
+    ("In millions, except per share data") that sits above a financial
+    statement, which the table-extraction agent must capture.
+    """
     full_content = []
 
     with pdfplumber.open(pdf_path) as pdf:
         for page_num, page in enumerate(pdf.pages, 1):
-            full_content.append(f"--- Page {page_num} ---")
+            page_sections = [f"--- Page {page_num} ---"]
 
             # Extract tables on the page
             tables = page.extract_tables()
@@ -30,12 +37,14 @@ def load_pdf_with_markdown_tables(pdf_path: str) -> list[str]:
                     for row in clean_table[1:]:
                         markdown_table += "| " + " | ".join(row) + " |\n"
 
-                    full_content.append(markdown_table)
+                    page_sections.append(markdown_table)
 
             # Extract non-table text
             page_text = page.extract_text()
             if page_text:
-                full_content.append(page_text)
+                page_sections.append(page_text)
+
+            full_content.append("\n\n".join(page_sections))
     return full_content
 
 

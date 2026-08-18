@@ -14,6 +14,14 @@ Conventions carry over from ``metrics.py``:
 - Ratios are decimal fractions (0.25 == 25%); day-count metrics are days;
   building blocks (gross profit, total debt, enterprise value, ...) are
   absolute amounts in the filing's currency, except ``earnings_per_share``.
+- Flow-based metrics are computed from run-rate annualized values: the
+  fiscal-year-to-date flows are multiplied by 4 / quarter number inside
+  ``run_all_calculations`` before any metric is computed, so the annual
+  reference bands in the field descriptions apply. Flow/flow ratios
+  (margins, coverage, payout) are unaffected by the uniform factor;
+  flow-vs-stock and flow-vs-market-cap metrics assume the year so far
+  extrapolates, which distorts seasonal businesses early in their fiscal
+  year.
 - Every field defaults to ``None``, meaning the metric was not computable for
   the given inputs (missing data, zero denominator, or not meaningful per the
   reference doc). Where ``None`` itself carries information — no debt, negative
@@ -131,7 +139,8 @@ class CalculatedMetrics(BaseModel):
             "(Net income - preferred dividends) / weighted-average diluted"
             " shares, in currency per share. The level is not comparable across"
             " companies (share counts are arbitrary); its uses are the"
-            " growth series and price ratios."
+            " growth series and price ratios. Run-rate annualized from"
+            " year-to-date earnings."
         ),
     )
     enterprise_value: float | None = Field(
@@ -375,7 +384,8 @@ class CalculatedMetrics(BaseModel):
             " total assets. Between -0.10 and +0.10 is considered safe;"
             " above +0.25 is a strong warning — high-accrual firms"
             " systematically underperform (Sloan 1996). The asset-scaled"
-            " form to prefer when net income is near zero."
+            " form to prefer when net income is near zero. Flow inputs are"
+            " run-rate annualized from year-to-date figures."
         ),
     )
     free_cash_flow_conversion: float | None = Field(
@@ -425,7 +435,9 @@ class CalculatedMetrics(BaseModel):
     price_to_earnings: float | None = Field(
         default=None,
         description=(
-            "Market capitalization / trailing net income. Long-run US"
+            "Market capitalization / run-rate annualized net income"
+            " (year-to-date earnings scaled to a full year — seasonal"
+            " businesses look distorted early in the fiscal year). Long-run US"
             " market average is roughly 15-20. Below 10 = priced for"
             " decline or deep value — verify earnings are not at a cyclical"
             " peak (for cyclicals the ratio is lowest exactly at the"
@@ -443,7 +455,8 @@ class CalculatedMetrics(BaseModel):
             " inverse, but defined even for negative earnings so it ranks"
             " the full universe. Compare against the 10-year Treasury"
             " yield: a yield below the risk-free rate means the price is"
-            " justified only by expected growth."
+            " justified only by expected growth. Run-rate annualized from"
+            " year-to-date earnings."
         ),
     )
     earnings_before_interest_and_taxes_to_enterprise_value: float | None = Field(
@@ -451,7 +464,8 @@ class CalculatedMetrics(BaseModel):
         description=(
             "Operating income / enterprise value — Greenblatt's"
             " capital-structure-neutral earnings yield. Above ~0.10 is"
-            " classic cheap territory. Inapplicable to financials."
+            " classic cheap territory. Inapplicable to financials. Run-rate"
+            " annualized from year-to-date operating income."
         ),
     )
     price_to_book: float | None = Field(
@@ -469,7 +483,9 @@ class CalculatedMetrics(BaseModel):
     price_to_sales: float | None = Field(
         default=None,
         description=(
-            "Market capitalization / trailing revenue. Below 1 cheap per"
+            "Market capitalization / run-rate annualized revenue"
+            " (year-to-date revenue scaled to a full year — seasonal"
+            " businesses look distorted early in the fiscal year). Below 1 cheap per"
             " revenue dollar (or a low-margin business); ~1-2 typical for a"
             " mature company; above 10 demands exceptional growth plus high"
             " margins. Must be read jointly with net margin — a high-margin"
@@ -489,7 +505,7 @@ class CalculatedMetrics(BaseModel):
             " spending, so it flatters capital-intensive firms —"
             " cross-check the operating-income form. None when EBITDA is"
             " not positive — fall back to enterprise value to sales. Never"
-            " for financials."
+            " for financials. Run-rate annualized from year-to-date EBITDA."
         ),
     )
     enterprise_value_to_earnings_before_interest_and_taxes: float | None = Field(
@@ -499,17 +515,18 @@ class CalculatedMetrics(BaseModel):
             " 10 (its inverse above 0.10) is classic Greenblatt-cheap"
             " territory. Charges for depreciation, so prefer it over the"
             " EBITDA form when comparing firms of different capital"
-            " intensity. Not for financials."
+            " intensity. Not for financials. Run-rate annualized from"
+            " year-to-date operating income."
         ),
     )
     enterprise_value_to_sales: float | None = Field(
         default=None,
         description=(
-            "Enterprise value / trailing revenue — the leverage-corrected"
-            " price-to-sales, and the fallback when EBITDA is negative."
-            " Roughly 1-3 typical; above 10 unusual (requires exceptional"
-            " growth and margins). Margin context is mandatory. Not for"
-            " financials."
+            "Enterprise value / run-rate annualized revenue — the"
+            " leverage-corrected price-to-sales, and the fallback when"
+            " EBITDA is negative. Roughly 1-3 typical; above 10 unusual"
+            " (requires exceptional growth and margins). Margin context is"
+            " mandatory. Not for financials."
         ),
     )
     free_cash_flow_yield: float | None = Field(
@@ -523,12 +540,14 @@ class CalculatedMetrics(BaseModel):
             " gap versus earnings yield is itself an accrual-quality flag."
             " Compare against the 10-year Treasury yield. Meaningless for"
             " banks; REITs use an adjusted-funds-from-operations yield."
+            " Run-rate annualized from year-to-date cash flows."
         ),
     )
     dividend_yield: float | None = Field(
         default=None,
         description=(
-            "Trailing common dividends paid / market capitalization, as a"
+            "Run-rate annualized common dividends paid / market"
+            " capitalization, as a"
             " decimal fraction. Roughly 0.02-0.04 typical for dividend"
             " payers; above 0.06-0.08 usually means the market is pricing a"
             " cut (value-trap territory). Zero is uninformative for"
@@ -557,6 +576,8 @@ class CalculatedMetrics(BaseModel):
             " capital return; negative means a net issuer — a documented"
             " negative signal. Net of issuance by design, so buybacks that"
             " merely offset stock-compensation dilution don't count."
+            " Run-rate annualized from year-to-date flows — a single large"
+            " buyback early in the year extrapolates."
         ),
     )
 
@@ -571,7 +592,9 @@ class CalculatedMetrics(BaseModel):
             " public manufacturers only. Above 2.99 safe; 1.81-2.99 grey"
             " zone; below 1.81 distress. Never apply to financials"
             " (leverage is their business model); use the double-prime"
-            " variant for other non-manufacturers."
+            " variant for other non-manufacturers. Flow terms (operating"
+            " income, revenue) are run-rate annualized from year-to-date"
+            " figures."
         ),
     )
     altman_z_zone: str | None = Field(
@@ -586,6 +609,8 @@ class CalculatedMetrics(BaseModel):
             "Altman Z'' variant for non-manufacturers (book equity in the"
             " fourth term, asset turnover dropped). Above 2.6 safe; 1.1-2.6"
             " grey zone; below 1.1 distress. Never apply to financials."
+            " The operating-income term is run-rate annualized from"
+            " year-to-date figures."
         ),
     )
     altman_z_double_prime_zone: str | None = Field(

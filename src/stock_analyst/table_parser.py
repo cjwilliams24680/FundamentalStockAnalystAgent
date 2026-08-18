@@ -2,6 +2,7 @@
 
 import asyncio
 import re
+from enum import StrEnum
 
 from langchain.agents import create_agent
 from pydantic import BaseModel, Field
@@ -41,6 +42,28 @@ def replace_dash_only_table_cells_with_zero_values(text: str) -> str:
     return _DASH_ONLY_TABLE_CELL_PATTERN.sub(r"\g<1>0.0\g<2>", text)
 
 
+class FinancialStatementUnitScale(StrEnum):
+    """The unit scale a filing states for a table's amounts, e.g. '(In millions)'."""
+
+    UNITS = "units"
+    THOUSANDS = "thousands"
+    MILLIONS = "millions"
+    BILLIONS = "billions"
+
+    @property
+    def multiplier(self) -> float:
+        """Factor that converts an amount printed at this scale into whole currency units."""
+        return _UNIT_SCALE_MULTIPLIERS[self]
+
+
+_UNIT_SCALE_MULTIPLIERS = {
+    FinancialStatementUnitScale.UNITS: 1.0,
+    FinancialStatementUnitScale.THOUSANDS: 1_000.0,
+    FinancialStatementUnitScale.MILLIONS: 1_000_000.0,
+    FinancialStatementUnitScale.BILLIONS: 1_000_000_000.0,
+}
+
+
 class FinancialReportTable(BaseModel):
     description: str = Field(
         description="A description of the information contained in the table. "
@@ -50,9 +73,35 @@ class FinancialReportTable(BaseModel):
         description="The markdown table that contains the information. "
         "Example: '| Cash Flow | Amount |'"
     )
+    unit_scale: FinancialStatementUnitScale = Field(
+        description="The unit scale the filing states for the table's amounts, from a caption "
+        "near the table's title such as '(In millions, except per share data)' or "
+        "'(in thousands)'. Use 'units' only when no scale caption is present — US filers "
+        "almost always state thousands or millions for financial statements."
+    )
+    share_counts_reported_in_stated_scale: bool = Field(
+        description="Whether share counts in the table use the same stated unit scale as the "
+        "monetary amounts. A caption like '(In millions, except per share data)' means share "
+        "counts ARE in the stated scale (true). A caption like '(in thousands, except share "
+        "and per share data)' means share counts are raw whole numbers (false).",
+        default=True,
+    )
     flagged_as_irrelevant: bool = Field(
         description="Whether the table is irrelevant to our analysis. Should be false by default.",
         default=False,
+    )
+
+
+class CleanedFinancialReportTable(BaseModel):
+    """Response model for the table cleaning agent.
+
+    Deliberately contains only the markdown so the cleaning agent cannot
+    regenerate (and possibly hallucinate) the metadata captured at
+    extraction time, such as ``unit_scale``.
+    """
+
+    markdown_table: str = Field(
+        description="The refined markdown table. Example: '| Cash Flow | Amount |'"
     )
 
 
@@ -98,7 +147,7 @@ table_extraction_agent = create_agent(
 table_cleaning_agent = create_agent(
     system_prompt=data_extraction_system_prompt,
     model=DEFAULT_MODEL,
-    response_format=FinancialReportTable,
+    response_format=CleanedFinancialReportTable,
 )
 
 
@@ -116,6 +165,13 @@ If a table is about a different data, please flag it as irrelevant.
 The time period that we care about is:
 {quarter_info.columns_to_use}
 If a table is not about that time period, please flag it as irrelevant.
+
+For each table, look for a unit-scale caption near the table's title, such as
+"(In millions, except per share data)" or "(in thousands)". Record that scale
+as unit_scale. Also record whether share counts use the same scale: a caption
+saying "except per share data" means share counts ARE in the stated scale,
+while "except share and per share data" means share counts are raw whole
+numbers. Do not convert any numbers — copy them exactly as printed.
 
 ========================================
 
@@ -164,7 +220,9 @@ Here is the table that I want you to refine:
     )
     cleaned_markdown_table = replace_dash_only_table_cells_with_zero_values(cleaned_markdown_table)
 
-    return trimmed_table.model_copy(update={"markdown_table": cleaned_markdown_table})
+    # Copy from the original table so extraction-time metadata (description,
+    # unit_scale, share_counts_reported_in_stated_scale) survives cleaning.
+    return table.model_copy(update={"markdown_table": cleaned_markdown_table})
 
 
 async def extract_tables_from_report(
