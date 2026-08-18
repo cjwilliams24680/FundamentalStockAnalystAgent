@@ -18,10 +18,10 @@ async def main():
         return
 
     print("Parsing filing...")
-    parsed_report = await run_parser_table_by_table(download_result.file_path)
-
-    print("Taking notes...")
-    notes = await take_notes_on_filing(download_result.file_path)
+    parsed_report, notes = await asyncio.gather(
+        run_parser_table_by_table(download_result.file_path),
+        take_notes_on_filing(download_result.file_path)
+    )
 
     print("Running calculations...")
     stock_info = lookup(download_result.ticker)
