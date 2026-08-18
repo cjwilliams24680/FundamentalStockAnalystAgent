@@ -33,7 +33,16 @@ them, and interpretation agents read the results.
    - `local_only` — local Ollama only; steps that require the high-effort
      OpenAI model (such as the filing downloader) will error
 
-3. Build the stock directory (fetches US-listed stock data from the Nasdaq screener,
+3. Set up Ollama (not needed if `LLM_CONFIG=remote_only`):
+
+   Install [Ollama](https://ollama.com/download) and make sure it is running, then pull
+   the `gemma4` model the agents use:
+
+   ```sh
+   ollama pull gemma4
+   ```
+
+4. Build the stock directory (fetches US-listed stock data from the Nasdaq screener,
    requires network access):
 
    ```sh
