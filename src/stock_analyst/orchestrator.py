@@ -1,15 +1,16 @@
 import asyncio
 from datetime import datetime
 
-from stock_analyst.interpretation_runner import interpret_calculated_values
-from stock_analyst.quantitative_data_parser import parse_quantitative_values_from_report
-from stock_analyst.report_download_models import DownloadedReport
-from stock_analyst.commentary_parser import parse_commentary_from_report
+from stock_analyst.analysis.calculations_runner import run_all_calculations
+from stock_analyst.analysis.interpretation_runner import interpret_calculated_values
+from stock_analyst.data_collection.report_download_models import DownloadedReport
+from stock_analyst.data_collection.stock_directory import lookup
+from stock_analyst.parsing.commentary_parser import parse_commentary_from_report
+from stock_analyst.parsing.quantitative_data_parser import parse_quantitative_values_from_report
 from stock_analyst.paths import OUTPUT_DIRECTORY
-from stock_analyst.report_writer import write_report
-from stock_analyst.calculations_runner import run_all_calculations
-from stock_analyst.stock_directory import lookup
+from stock_analyst.reporting.report_writer import write_report
 from stock_analyst.user_input_collector import collect_user_input
+
 
 async def run_orchestrator():
     download_result = await collect_user_input()

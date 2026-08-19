@@ -17,7 +17,7 @@ from pathlib import Path
 
 import requests
 
-from stock_analyst.stock_directory import DEFAULT_PATH
+from stock_analyst.data_collection.stock_directory import DEFAULT_PATH
 
 _SCREENER_URL = "https://api.nasdaq.com/api/screener/stocks"
 _EXCHANGES = ["NASDAQ", "NYSE", "AMEX"]

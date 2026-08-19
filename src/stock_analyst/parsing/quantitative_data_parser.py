@@ -4,14 +4,14 @@ from pathlib import Path
 
 from langchain.agents import create_agent
 
-from stock_analyst.end_of_financial_period_parser import (
+from stock_analyst.llm_provider import DEFAULT_MODEL
+from stock_analyst.parsing.end_of_financial_period_parser import (
     extract_end_of_earnings_period,
     get_earnings_period_info,
 )
-from stock_analyst.llm_provider import DEFAULT_MODEL
-from stock_analyst.pdf_reader import load_pdf_with_markdown_tables
-from stock_analyst.quantitative_data import RawQuantitativeData
-from stock_analyst.table_parser import (
+from stock_analyst.parsing.pdf_reader import load_pdf_with_markdown_tables
+from stock_analyst.parsing.quantitative_data import RawQuantitativeData
+from stock_analyst.parsing.table_parser import (
     FinancialReportTable,
     extract_tables_from_report,
     turn_table_to_string,

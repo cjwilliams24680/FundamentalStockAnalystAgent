@@ -1,11 +1,16 @@
 from pathlib import Path
+
 from pick import pick
 
-from stock_analyst.stock_directory import StockInfo, lookup
+from stock_analyst.data_collection.earnings_report_downloader import (
+    get_filings_url,
+    run_report_downloader,
+)
+from stock_analyst.data_collection.report_download_models import DownloadedReport, DownloadMethod
+from stock_analyst.data_collection.stock_directory import StockInfo, lookup
 from stock_analyst.llm_provider import MODEL_CONFIG, ModelConfig
-from stock_analyst.earnings_report_downloader import get_filings_url, run_report_downloader
 from stock_analyst.paths import SANDBOX_DIRECTORY
-from stock_analyst.report_download_models import DownloadedReport, DownloadMethod
+
 
 def _prompt_for_ticker() -> str:
     ticker = input("Enter a ticker: ")

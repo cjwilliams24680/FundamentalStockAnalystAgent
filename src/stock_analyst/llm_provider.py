@@ -1,5 +1,5 @@
-from enum import Enum, auto
 import os
+from enum import Enum, auto
 
 from dotenv import load_dotenv
 from langchain_ollama import ChatOllama

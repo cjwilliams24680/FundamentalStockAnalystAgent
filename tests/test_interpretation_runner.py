@@ -1,8 +1,8 @@
 """Tests for interpretation_runner.py."""
 
-from stock_analyst import calculations
-from stock_analyst.calculated_values import CalculatedValues
-from stock_analyst.interpretation_runner import interpret_calculated_values
+from stock_analyst.analysis import calculations
+from stock_analyst.analysis.calculated_values import CalculatedValues
+from stock_analyst.analysis.interpretation_runner import interpret_calculated_values
 
 _ZONE_FIELDS = {"altman_z_zone", "altman_z_double_prime_zone"}
 

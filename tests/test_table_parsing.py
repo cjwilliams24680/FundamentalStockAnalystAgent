@@ -1,6 +1,6 @@
 """Tests for table_parser.py."""
 
-from stock_analyst.table_parser import (
+from stock_analyst.parsing.table_parser import (
     FinancialStatementUnitScale,
     replace_dash_only_table_cells_with_zero_values,
     replace_parenthesized_numbers_with_negative_values,

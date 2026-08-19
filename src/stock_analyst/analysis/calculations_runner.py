@@ -31,10 +31,10 @@ ratios, yields, Altman terms) become run-rate annual, comparable to the
 annual reference bands in ``calculated_metrics.py``.
 """
 
-from stock_analyst import calculations
-from stock_analyst.calculated_values import CalculatedValues
-from stock_analyst.quantitative_data import RawQuantitativeData
-from stock_analyst.stock_directory import StockInfo
+from stock_analyst.analysis import calculations
+from stock_analyst.analysis.calculated_values import CalculatedValues
+from stock_analyst.data_collection.stock_directory import StockInfo
+from stock_analyst.parsing.quantitative_data import RawQuantitativeData
 
 
 def _zero_if_missing(value: float | None) -> float:

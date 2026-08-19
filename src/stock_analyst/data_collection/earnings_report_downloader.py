@@ -5,10 +5,10 @@ from langchain.agents import create_agent
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from pydantic import BaseModel, Field
 
+from stock_analyst.data_collection.report_download_models import DownloadedReport
+from stock_analyst.data_collection.stock_directory import StockInfo, lookup
 from stock_analyst.llm_provider import get_high_effort_model
 from stock_analyst.paths import SANDBOX_DIRECTORY
-from stock_analyst.stock_directory import StockInfo, lookup
-from stock_analyst.report_download_models import DownloadedReport
 
 _DOWNLOAD_DIRECTORY = SANDBOX_DIRECTORY
 

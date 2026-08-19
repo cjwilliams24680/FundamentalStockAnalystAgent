@@ -5,7 +5,7 @@ from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 
 from stock_analyst.llm_provider import DEFAULT_MODEL
-from stock_analyst.pdf_reader import load_pdf_with_markdown_tables
+from stock_analyst.parsing.pdf_reader import load_pdf_with_markdown_tables
 
 
 class CommentaryParseResult(BaseModel):

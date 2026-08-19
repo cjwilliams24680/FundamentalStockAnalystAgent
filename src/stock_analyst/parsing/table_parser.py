@@ -7,8 +7,8 @@ from enum import StrEnum
 from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 
-from stock_analyst.end_of_financial_period_parser import EarningsPeriodInfo
 from stock_analyst.llm_provider import DEFAULT_MODEL
+from stock_analyst.parsing.end_of_financial_period_parser import EarningsPeriodInfo
 
 _PARENTHESIZED_NUMBER_PATTERN = re.compile(r"\((\d[\d,]*(?:\.\d+)?)\)")
 

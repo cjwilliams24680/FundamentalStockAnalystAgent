@@ -1,6 +1,6 @@
 """Runtime lookup API for the local stock directory.
 
-Loads data/stock_directory.json (built by build_directory.py) once and answers
+Loads data/stock_directory.json (built by build_stock_directory.py) once and answers
 ticker -> exchange/industry lookups with no network calls.
 """
 
@@ -42,7 +42,7 @@ def _load_directory(path: Path | str = DEFAULT_PATH) -> dict:
                 _directory = json.load(handle)
         except FileNotFoundError:
             raise FileNotFoundError(
-                f"{path} not found -- run `python build_directory.py` first"
+                f"{path} not found -- run `uv run build-directory` first"
             ) from None
     return _directory
 

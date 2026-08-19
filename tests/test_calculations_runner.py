@@ -2,9 +2,9 @@
 
 import pytest
 
-from stock_analyst.calculations_runner import run_all_calculations
-from stock_analyst.quantitative_data import RawQuantitativeData
-from stock_analyst.stock_directory import StockInfo
+from stock_analyst.analysis.calculations_runner import run_all_calculations
+from stock_analyst.data_collection.stock_directory import StockInfo
+from stock_analyst.parsing.quantitative_data import RawQuantitativeData
 
 
 def make_stock_info(market_cap: float) -> StockInfo:

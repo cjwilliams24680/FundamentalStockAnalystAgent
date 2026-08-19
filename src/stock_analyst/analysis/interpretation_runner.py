@@ -9,9 +9,9 @@ is meaningful for prompt construction, and the completeness test in
 ``tests/test_interpretation_runner.py`` proves every field is covered.
 """
 
-from stock_analyst import interpretations as interpretations
-from stock_analyst.calculated_values import CalculatedValues
-from stock_analyst.interpretations import CalculationInterpretation
+from stock_analyst.analysis import interpretations as interpretations
+from stock_analyst.analysis.calculated_values import CalculatedValues
+from stock_analyst.analysis.interpretations import CalculationInterpretation
 
 
 def interpret_calculated_values(

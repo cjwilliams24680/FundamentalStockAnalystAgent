@@ -12,7 +12,7 @@ dividends 36, buybacks 50, issuance 10.
 
 import pytest
 
-from stock_analyst import calculations as m
+from stock_analyst.analysis import calculations as m
 
 approx = pytest.approx
 

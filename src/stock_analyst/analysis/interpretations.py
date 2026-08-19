@@ -30,7 +30,7 @@ Conventions:
 
 from dataclasses import dataclass
 
-from stock_analyst import calculations
+from stock_analyst.analysis import calculations
 
 
 @dataclass(frozen=True)

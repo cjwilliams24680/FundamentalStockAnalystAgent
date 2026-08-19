@@ -2,6 +2,7 @@ import asyncio
 
 from stock_analyst.orchestrator import run_orchestrator
 
+
 async def main():
     await run_orchestrator()
 

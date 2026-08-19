@@ -29,7 +29,7 @@ Refresh the local stock directory (`data/stock_directory.json`) from the free Na
 
    ```bash
    uv run python -c "
-   from stock_analyst.stock_directory import lookup
+   from stock_analyst.data_collection.stock_directory import lookup
    assert lookup('AAPL').exchange == 'NASDAQ' and lookup('AAPL').sector == 'Technology'
    assert lookup('JPM').exchange == 'NYSE'
    assert lookup('NOTREAL') is None

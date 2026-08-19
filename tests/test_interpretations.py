@@ -8,7 +8,7 @@ polished without breaking tests.
 
 import pytest
 
-from stock_analyst import calculations, interpretations
+from stock_analyst.analysis import calculations, interpretations
 
 
 def test_raw_value_passes_through_unchanged():

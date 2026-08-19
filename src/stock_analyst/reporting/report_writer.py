@@ -2,11 +2,11 @@ from datetime import datetime
 
 from langchain.agents import create_agent
 
-from stock_analyst.interpretations import CalculationInterpretation
-from stock_analyst.report_download_models import DownloadedReport
+from stock_analyst.analysis.interpretations import CalculationInterpretation
+from stock_analyst.data_collection.report_download_models import DownloadedReport
+from stock_analyst.data_collection.stock_directory import StockInfo
 from stock_analyst.llm_provider import DEFAULT_MODEL, get_model_name
-from stock_analyst.quantitative_data import RawQuantitativeData
-from stock_analyst.stock_directory import StockInfo
+from stock_analyst.parsing.quantitative_data import RawQuantitativeData
 
 _AUTHOR_AGENT = create_agent(
     model=DEFAULT_MODEL,

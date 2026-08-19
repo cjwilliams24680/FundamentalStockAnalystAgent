@@ -2,7 +2,7 @@
 
 import pytest
 
-from stock_analyst.quantitative_data import (
+from stock_analyst.parsing.quantitative_data import (
     BALANCE_SHEET_FIELD_NAMES,
     SHARE_COUNT_FIELD_NAMES,
     YEAR_TO_DATE_FLOW_FIELD_NAMES,
