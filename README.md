@@ -31,7 +31,7 @@ them, and interpretation agents read the results.
      high-effort steps (needs both Ollama and an OpenAI key)
    - `remote_only` — OpenAI models for everything (no Ollama needed)
    - `local_only` — local Ollama only; steps that require the high-effort
-     OpenAI model (such as the filing downloader) will error
+     OpenAI model (such as the filing downloader) will be disabled
 
 3. Set up Ollama (not needed if `LLM_CONFIG=remote_only`):
 
