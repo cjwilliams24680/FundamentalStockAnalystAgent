@@ -4,7 +4,7 @@ language for interpretation agents.
 One ``interpret_<field_name>`` function per field;
 ``calculation_interpreter.py`` runs all of them in the model's declaration
 order. The reference bands come from the ``CalculatedValues``
-field descriptions, which distill ``docs/fundamental_metrics.md`` — that doc
+field comments, which distill ``docs/fundamental_metrics.md`` — that doc
 remains the authority when a band here needs justification.
 
 Conventions:
