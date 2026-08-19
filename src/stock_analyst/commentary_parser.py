@@ -20,13 +20,13 @@ class CommentaryParseResult(BaseModel):
             upcoming_catalysts=self.upcoming_catalysts + other.upcoming_catalysts,
         )
 
-_commentary_parsing_prompt = """
+_COMMENTARY_PARSING_PROMPT = """
 You are a financial analyst. Your job is to comb over the financial 
 performance report and take notes on any interesting insights or patterns that you see."""
 
-_commentary_parsing_agent = create_agent(
+_COMMENTARY_PARSING_AGENT = create_agent(
     model=DEFAULT_MODEL,
-    system_prompt=_commentary_parsing_prompt,
+    system_prompt=_COMMENTARY_PARSING_PROMPT,
     response_format=CommentaryParseResult,
 )
 
@@ -64,5 +64,5 @@ async def _parse_commentary_from_page(page: str) -> CommentaryParseResult:
     {page}
     """
 
-    result = await _commentary_parsing_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+    result = await _COMMENTARY_PARSING_AGENT.ainvoke({"messages": [{"role": "user", "content": message}]})
     return result["structured_response"]

@@ -129,7 +129,7 @@ def turn_tables_to_string(tables: list[FinancialReportTable]) -> str:
     return "\n===============\n".join([turn_table_to_string(table) for table in tables])
 
 
-_data_extraction_system_prompt = """
+_DATA_EXTRACTION_SYSTEM_PROMPT = """
 You are a financial analyst.
 
 You are given a 10Q document.
@@ -138,14 +138,14 @@ You are given a 10Q document.
 Your job is to trim down the document to the most relevant parts and clean it up,
 so that it is easier for the parsing agent to process.
 """
-_table_extraction_agent = create_agent(
-    system_prompt=_data_extraction_system_prompt,
+_TABLE_EXTRACTION_AGENT = create_agent(
+    system_prompt=_DATA_EXTRACTION_SYSTEM_PROMPT,
     model=DEFAULT_MODEL,
     response_format=FinancialReportTables,
 )
 
-_table_cleaning_agent = create_agent(
-    system_prompt=_data_extraction_system_prompt,
+_TABLE_CLEANING_AGENT = create_agent(
+    system_prompt=_DATA_EXTRACTION_SYSTEM_PROMPT,
     model=DEFAULT_MODEL,
     response_format=CleanedFinancialReportTable,
 )
@@ -179,7 +179,7 @@ Here is the page:
 {page}
 """
 
-    result = await _table_extraction_agent.ainvoke(
+    result = await _TABLE_EXTRACTION_AGENT.ainvoke(
         {"messages": [{"role": "user", "content": message}]}
     )
     return result["structured_response"].tables
@@ -212,7 +212,7 @@ Here is the table that I want you to refine:
 """
 
     trimmed_table = (
-        await _table_cleaning_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+        await _TABLE_CLEANING_AGENT.ainvoke({"messages": [{"role": "user", "content": message}]})
     )["structured_response"]
 
     cleaned_markdown_table = replace_parenthesized_numbers_with_negative_values(

@@ -8,7 +8,7 @@ from stock_analyst.llm_provider import DEFAULT_MODEL, get_model_name
 from stock_analyst.quantitative_data import RawQuantitativeData
 from stock_analyst.stock_directory import StockInfo
 
-_author_agent = create_agent(
+_AUTHOR_AGENT = create_agent(
     model=DEFAULT_MODEL,
     system_prompt="You are a financial analyst. You have been given information about "
     "a company's financial performance report. Your job is to summarize the report "
@@ -71,7 +71,7 @@ Here are the unusual values found in the calculations:
 Please summarize the unusual values concisely in one paragraph.
 Add a few sentences of commentary at the end about the company's valuation and future performance
 """
-    result = await _author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+    result = await _AUTHOR_AGENT.ainvoke({"messages": [{"role": "user", "content": message}]})
     return result["messages"][-1].text
 
 
@@ -88,7 +88,7 @@ Please summarize the insights concisely in one paragraph.
 Make sure to highlight any insights that could have a significant impact
 on the company's valuation and future performance.
 """
-    result = await _author_agent.ainvoke({"messages": [{"role": "user", "content": message}]})
+    result = await _AUTHOR_AGENT.ainvoke({"messages": [{"role": "user", "content": message}]})
     return result["messages"][-1].text
 
 

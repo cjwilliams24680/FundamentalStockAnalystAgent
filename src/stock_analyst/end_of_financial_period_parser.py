@@ -64,7 +64,7 @@ def get_earnings_period_info(parse_result: EndOfEarningsPeriodParseResult) -> Ea
             raise ValueError(f"Invalid month: {parse_result.month}")
 
 
-_end_of_earnings_period_parsing_system_prompt = """
+_END_OF_EARNINGS_PERIOD_PARSING_SYSTEM_PROMPT = """
 You are a financial analyst.
 
 You are given a 10Q document.
@@ -74,8 +74,8 @@ Your job is to trim down the document to the most relevant parts and clean it up
 so that it is easier for the parsing agent to process.
 """
 
-_end_of_earnings_period_parsing_agent = create_agent(
-    system_prompt=_end_of_earnings_period_parsing_system_prompt,
+_END_OF_EARNINGS_PERIOD_PARSING_AGENT = create_agent(
+    system_prompt=_END_OF_EARNINGS_PERIOD_PARSING_SYSTEM_PROMPT,
     model=DEFAULT_MODEL,
     response_format=EndOfEarningsPeriodParseResult,
 )
@@ -103,7 +103,7 @@ Here is the page:
 {page}
 """
 
-    result = await _end_of_earnings_period_parsing_agent.ainvoke(
+    result = await _END_OF_EARNINGS_PERIOD_PARSING_AGENT.ainvoke(
         {"messages": [{"role": "user", "content": message}]}
     )
     return result["structured_response"]
