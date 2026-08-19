@@ -62,6 +62,9 @@ async def write_report(
 async def _summarize_unusual_values(
     unusual_values: list[CalculationInterpretation],
 ) -> str:
+    if not unusual_values:
+        return "All of the fundamental analysis values fell within the normal range. No insights there."
+    
     message = f"""
 I ran a fundamental analysis calculations on the company's financial performance report.
 
@@ -78,6 +81,9 @@ Add a few sentences of commentary at the end about the company's valuation and f
 async def _summarize_commentary(
     commentary: list[str],
 ) -> str:
+    if not commentary:
+        return "No interesting commentary was found in the report."
+    
     message = f"""
 I ran a fundamental analysis calculations on the company's financial performance report.
 
