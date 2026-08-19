@@ -1,11 +1,10 @@
 """Wire one period's parsed filing values through every calculation in
 :mod:`calculations` and collect the results into a
-:class:`calculated_metrics.CalculatedMetrics`.
+:class:`calculated_values.CalculatedValues`.
 
 Inputs are a :class:`stock_directory.StockInfo` (contributes market
 capitalization, the one input not parseable from a filing) and a
-:class:`quarterly_report_parse_result.QuarterlyReportParseResult` (one
-reporting period).
+:class:`quantitative_data.RawQuantitativeData` (one reporting period).
 
 Two conventions:
 
@@ -20,7 +19,7 @@ Two conventions:
 - Metrics that need average balances, prior-period values, or
   period-over-period changes cannot be computed from a single parse result;
   they are descoped until multiple reports are supported and have no
-  ``CalculatedMetrics`` fields — see ``docs/descoped_multi_period_metrics.md``.
+  ``CalculatedValues`` fields — see ``docs/descoped_multi_period_metrics.md``.
 
 Flow values arrive fiscal-year-to-date (the parse result's contract) and are
 annualized to a run rate here — every flow field is multiplied by
@@ -28,7 +27,7 @@ annualized to a run rate here — every flow field is multiplied by
 flow/flow metrics (margins, coverage, payout, cash-flow-to-net-income)
 unchanged, while flow-vs-stock and flow-vs-market-cap metrics (valuation
 ratios, yields, Altman terms) become run-rate annual, comparable to the
-annual reference bands in ``calculated_metrics.py``.
+annual reference bands in ``calculated_values.py``.
 """
 
 from stock_analyst.analysis import calculations

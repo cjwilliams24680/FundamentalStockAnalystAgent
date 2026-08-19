@@ -1,8 +1,8 @@
-"""Read each :class:`calculated_metrics.CalculatedValues` field into plain
+"""Read each :class:`calculated_values.CalculatedValues` field into plain
 language for interpretation agents.
 
 One ``interpret_<field_name>`` function per field;
-``calculation_interpreter.py`` runs all of them in the model's declaration
+``interpretation_runner.py`` runs all of them in the dataclass's declaration
 order. The reference bands come from the ``CalculatedValues``
 field comments, which distill ``docs/fundamental_metrics.md`` — that doc
 remains the authority when a band here needs justification.

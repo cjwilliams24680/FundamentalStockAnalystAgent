@@ -1,14 +1,14 @@
 """Raw values agents must parse from a quarterly report to feed the
-calculation functions in :mod:`metrics`.
+calculation functions in :mod:`calculations`.
 
-:class:`QuarterlyReportParseResult` enumerates every leaf input consumed by
-the functions in ``metrics.py`` — the values that come straight off the three
-financial statements. Field descriptions are written for the parsing agent:
-where the value appears in a quarterly report and the synonym labels filers
-use for it. Notes about how a field maps onto ``metrics.py`` parameters are
-kept in code comments instead. It deliberately excludes:
+:class:`RawQuantitativeData` enumerates every leaf input consumed by
+the functions in ``calculations.py`` — the values that come straight off the
+three financial statements. Field descriptions are written for the parsing
+agent: where the value appears in a quarterly report and the synonym labels
+filers use for it. Notes about how a field maps onto ``calculations.py``
+parameters are kept in code comments instead. It deliberately excludes:
 
-- Intermediates that ``metrics.py`` already computes from these fields
+- Intermediates that ``calculations.py`` already computes from these fields
   (``gross_profit``, ``total_debt``, ``net_debt``, ``working_capital``,
   ``invested_capital``, ``enterprise_value``, ``free_cash_flow``, earnings
   before interest, taxes, depreciation, and amortization, net operating
@@ -19,7 +19,7 @@ kept in code comments instead. It deliberately excludes:
   (``inventory_change``, ``change_in_working_capital``, the Piotroski and
   Beneish prior-year values). One instance represents one reporting period;
   build those inputs by combining the current instance with one parsed from
-  an earlier report (using :func:`metrics.average` for average balances).
+  an earlier report (using :func:`calculations.average` for average balances).
 
 One instance covers one reporting period measured fiscal-year-to-date: every
 flow value (income statement and cash flow statement) runs from the start of
@@ -33,7 +33,7 @@ true single-quarter flows are a multi-period derivation (differencing
 consecutive parse results), like the other multi-period inputs excluded
 above. Balance-sheet values are point-in-time as of the period end.
 
-Conventions match ``metrics.py``: absolute amounts in the filing's currency
+Conventions match ``calculations.py``: absolute amounts in the filing's currency
 (not per-share); every field defaults to ``None`` meaning the value was not
 reported (mirroring the gaps in real XBRL data); capital expenditures,
 dividends paid, buybacks, and stock issuance are positive magnitudes with the
@@ -44,11 +44,11 @@ The "absolute amounts" convention is implemented in two steps: the parsing
 agent records numbers exactly as printed (filings state a scale such as
 '(In millions)'), and the pipeline multiplies each table's parse result by
 its stated scale (``table_parser.FinancialStatementUnitScale``) via
-:meth:`QuarterlyReportParseResult.apply_unit_scale` before merging — so a
+:meth:`RawQuantitativeData.apply_unit_scale` before merging — so a
 populated instance holds whole currency units. Flows remain fiscal-year-to-
 date here; annualizing them to a run rate for metric comparability is
 ``run_all_calculations``' responsibility, via
-:meth:`QuarterlyReportParseResult.annualize_year_to_date_flow_values`. The
+:meth:`RawQuantitativeData.annualize_year_to_date_flow_values`. The
 module-level frozensets (``YEAR_TO_DATE_FLOW_FIELD_NAMES``,
 ``BALANCE_SHEET_FIELD_NAMES``, ``SHARE_COUNT_FIELD_NAMES``) classify every
 field for those transformations and must partition the model exactly.
@@ -118,7 +118,7 @@ _ANNUALIZATION_FACTOR_BY_FISCAL_QUARTER = {
 
 
 class RawQuantitativeData(BaseModel):
-    """Every raw statement value needed by the functions in ``metrics.py``,
+    """Every raw statement value needed by the functions in ``calculations.py``,
     for a single reporting period."""
 
     model_config = ConfigDict(frozen=True)
@@ -212,7 +212,7 @@ class RawQuantitativeData(BaseModel):
         ),
     )
     # Feeds every ``operating_income`` and ``earnings_before_interest_and_taxes``
-    # parameter in metrics.py (they are the same figure).
+    # parameter in calculations.py (they are the same figure).
     operating_income: float | None = Field(
         default=None,
         description=(
@@ -464,7 +464,7 @@ class RawQuantitativeData(BaseModel):
         default=None,
         description=("Balance sheet subtotal. Labeled 'Total current assets'."),
     )
-    # Feeds ``average_net_fixed_assets`` (via metrics.average) and
+    # Feeds ``average_net_fixed_assets`` (via calculations.average) and
     # BeneishPeriod.net_property_plant_and_equipment.
     net_property_plant_and_equipment: float | None = Field(
         default=None,

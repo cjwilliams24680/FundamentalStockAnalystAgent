@@ -6,21 +6,21 @@ balance-sheet values (beginning and ending balances from two consecutive
 reports), prior-period flows, or period-over-period changes — so they have been
 **descoped until multiple reports are supported**.
 
-Nothing here is lost: the calculation functions all exist in `metrics.py` and
+Nothing here is lost: the calculation functions all exist in `calculations.py` and
 their interpretation guidance is in `docs/fundamental_metrics.md`. This list is
 the checklist for re-adding them when multi-report support lands. To restore
 one:
 
-1. Re-add its field to `CalculatedMetrics` in `calculated_metrics.py` (the
+1. Re-add its field to `CalculatedValues` in `calculated_values.py` (the
    field definitions with their interpretation-agent descriptions are in git
    history, and the reference bands are in `docs/fundamental_metrics.md`).
-2. Wire the call in `run_all_calculations.py`, building the multi-period
-   inputs from two (or more) parse results — `metrics.average` exists for the
-   average-balance inputs.
+2. Wire the call in `calculations_runner.py`, building the multi-period
+   inputs from two (or more) parse results — `calculations.average` exists for
+   the average-balance inputs.
 
 ## Profitability
 
-| Calculation | `metrics.py` function | Missing multi-period input |
+| Calculation | `calculations.py` function | Missing multi-period input |
 |---|---|---|
 | Return on equity | `return_on_equity` | Average shareholders' equity (two consecutive balance sheets) |
 | Return on assets | `return_on_assets` | Average total assets |
@@ -28,7 +28,7 @@ one:
 
 ## Efficiency
 
-| Calculation | `metrics.py` function | Missing multi-period input |
+| Calculation | `calculations.py` function | Missing multi-period input |
 |---|---|---|
 | Total asset turnover | `total_asset_turnover` | Average total assets |
 | Fixed asset turnover | `fixed_asset_turnover` | Average net fixed assets |
@@ -41,13 +41,13 @@ one:
 
 ## Solvency & leverage
 
-| Calculation | `metrics.py` function | Missing multi-period input |
+| Calculation | `calculations.py` function | Missing multi-period input |
 |---|---|---|
 | Financial leverage (equity multiplier) | `financial_leverage` | Average total assets and average total equity |
 
 ## Growth
 
-| Calculation | `metrics.py` function | Missing multi-period input |
+| Calculation | `calculations.py` function | Missing multi-period input |
 |---|---|---|
 | Revenue growth | `growth_rate` | Prior-period revenue |
 | Earnings per share growth | `growth_rate` | Prior-period earnings per share |
@@ -58,11 +58,11 @@ one:
 | Fundamental growth | `fundamental_growth` | Reinvestment rate and return on invested capital, both above |
 
 Multi-year history would additionally enable `compound_annual_growth_rate`,
-which was excluded from `CalculatedMetrics` from the start for the same reason.
+which was excluded from `CalculatedValues` from the start for the same reason.
 
 ## Composite scores
 
-| Calculation | `metrics.py` function | Missing multi-period input |
+| Calculation | `calculations.py` function | Missing multi-period input |
 |---|---|---|
 | Piotroski F-Score | `piotroski_f_score` | Full prior-year input set (all nine signals compare two years) |
 | DuPont three-factor decomposition | `dupont_three_factor` | Average total assets and average total equity |

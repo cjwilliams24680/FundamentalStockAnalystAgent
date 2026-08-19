@@ -1,7 +1,7 @@
-"""Calculated results produced by the functions in :mod:`metrics` — the
-output counterpart to :class:`quarterly_report_parse_result.QuarterlyReportParseResult`.
+"""Calculated results produced by the functions in :mod:`calculations` — the
+output counterpart to :class:`quantitative_data.RawQuantitativeData`.
 
-:class:`CalculatedValues` holds one field per calculation in ``metrics.py``,
+:class:`CalculatedValues` holds one field per calculation in ``calculations.py``,
 grouped under the same section banners so the class reads as a table of
 contents for that module. Field comments are written for interpretation
 agents whose job is to spot unusual values: each gives the definition and
@@ -9,7 +9,7 @@ unit, the practitioner reference bands, and the edge cases and sector caveats
 that change how a number should be read. They distill
 ``docs/fundamental_metrics.md``, which remains the full reference.
 
-Conventions carry over from ``metrics.py``:
+Conventions carry over from ``calculations.py``:
 
 - Ratios are decimal fractions (0.25 == 25%); day-count metrics are days;
   building blocks (gross profit, total debt, enterprise value, ...) are
@@ -26,7 +26,7 @@ Conventions carry over from ``metrics.py``:
   the given inputs (missing data, zero denominator, or not meaningful per the
   reference doc). Where ``None`` itself carries information — no debt, negative
   book equity — the field comment says so.
-- The Altman zone fields hold the ``metrics.Z_SAFE`` / ``Z_GREY`` /
+- The Altman zone fields hold the ``calculations.Z_SAFE`` / ``Z_GREY`` /
   ``Z_DISTRESS`` strings.
 - Calculations that need multiple quarterly reports (average balances,
   prior-period values, period-over-period changes) are descoped until
@@ -40,7 +40,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class CalculatedValues:
-    """Every calculated result produced by the functions in ``metrics.py``,
+    """Every calculated result produced by the functions in ``calculations.py``,
     for a single company at a single point in time.
 
     Golden rule for interpretation (CFA Institute): almost all ratios are

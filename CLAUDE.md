@@ -13,41 +13,41 @@ Dependencies are managed with `uv` (Python 3.12+):
 ```sh
 uv sync                                            # install deps (incl. dev group)
 uv run pytest                                      # run all tests
-uv run pytest tests/test_metrics.py                # one file
-uv run pytest tests/test_metrics.py::test_name     # one test
+uv run pytest tests/test_calculations.py           # one file
+uv run pytest tests/test_calculations.py::test_name  # one test
 uv run ruff check                                  # lint (add --fix to auto-fix); config in pyproject.toml
 uv run ruff format                                 # format (line length 100; also formats the notebook)
 uv run analyze                                     # run the full pipeline (prompts for a ticker)
 uv run build-directory                             # rebuild data/stock_directory.json (network)
 ```
 
-The code lives in a src layout: `src/stock_analyst/` is the package, installed editable by `uv sync` (hatchling build backend), so `from stock_analyst import metrics` works everywhere — tests, notebook, and the `analyze`/`build-directory` console scripts defined in `[project.scripts]`. Repo-anchored filesystem locations (`data/`, `sandbox/`, `output/`) come from `src/stock_analyst/paths.py`.
+The code lives in a src layout: `src/stock_analyst/` is the package, installed editable by `uv sync` (hatchling build backend), so `from stock_analyst.analysis import calculations` works everywhere — tests, notebook, and the `analyze`/`build-directory` console scripts defined in `[project.scripts]`. Repo-anchored filesystem locations (`data/`, `sandbox/`, `output/`) come from `src/stock_analyst/paths.py`.
 
-Secrets and model selection live in `.env` (gitignored): the OpenAI key, plus `LLM_CONFIG` (`remote_only`, `local_only`, or unset for the default local-Ollama-plus-remote-high-effort mix — see `llm_models.py`, which exposes `DEFAULT_MODEL` for most agents and `get_high_effort_model()` for the hardest steps). `sandbox/` holds sample filing PDFs for experiments and is also gitignored.
+Secrets and model selection live in `.env` (gitignored): the OpenAI key, plus `LLM_CONFIG` (`remote_only`, `local_only`, or unset for the default local-Ollama-plus-remote-high-effort mix — see `llm_provider.py`, which exposes `DEFAULT_MODEL` for most agents and `get_high_effort_model()` for the hardest steps). `sandbox/` holds sample filing PDFs for experiments and is also gitignored.
 
 ## Architecture
 
 The pipeline for one company and one reporting period:
 
 ```
-10-Q PDF ──(parsing agent)──▶ QuarterlyReportParseResult ─┐
-                                                          ├─▶ run_all_calculations() ─▶ CalculatedMetrics ─▶ (interpretation agent)
+10-Q PDF ──(parsing agent)──▶ RawQuantitativeData ────────┐
+                                                          ├─▶ run_all_calculations() ─▶ CalculatedValues ─▶ (interpretation agent)
 stock_directory.lookup(ticker) ─▶ StockInfo (market cap) ─┘
 ```
 
 All module paths below are relative to `src/stock_analyst/`.
 
-- **`quarterly_report_parse_result.py`** — frozen pydantic model of every raw *leaf* value the metrics need, one instance per reporting period. Field descriptions are written *for the parsing agent* (where the value appears in a filing, synonym labels filers use); notes mapping fields to `metrics.py` parameters are code comments. Deliberately excludes intermediates that `metrics.py` computes, market data, and prior-period/average inputs. Also has `merge`, `get_diffs`, and `count_populated_fields` for comparing parses across prompting experiments.
-- **`metrics.py`** — pure calculation functions, one per metric in `docs/fundamental_metrics.md` (seven pillars plus composite scores like Altman Z and Piotroski F). No I/O; callers wire in values.
-- **`run_all_calculations.py`** — wires a `StockInfo` + one parse result through every currently computable metric, producing a `CalculatedMetrics`.
-- **`calculated_metrics.py`** — frozen pydantic output model, one field per computed metric. Field descriptions are written *for interpretation agents*: definition, unit, reference bands, sector caveats.
-- **`build_directory.py` / `stock_directory.py`** — batch builder (3 HTTP requests to the Nasdaq screener, one per exchange) writes `data/stock_directory.json`; the runtime module answers ticker lookups from that file with no network. `StockInfo.market_cap` is the one metric input not parseable from a filing. Refreshing the directory has a dedicated skill: `.claude/skills/update-stock-directory`.
+- **`parsing/quantitative_data.py`** — frozen pydantic model (`RawQuantitativeData`) of every raw *leaf* value the metrics need, one instance per reporting period. Field descriptions are written *for the parsing agent* (where the value appears in a filing, synonym labels filers use); notes mapping fields to `calculations.py` parameters are code comments. Deliberately excludes intermediates that `calculations.py` computes, market data, and prior-period/average inputs. Also has `merge`, `get_diffs`, and `count_populated_fields` for comparing parses across prompting experiments.
+- **`analysis/calculations.py`** — pure calculation functions, one per metric in `docs/fundamental_metrics.md` (seven pillars plus composite scores like Altman Z and Piotroski F). No I/O; callers wire in values.
+- **`analysis/calculations_runner.py`** — wires a `StockInfo` + one parse result through every currently computable metric, producing a `CalculatedValues`.
+- **`analysis/calculated_values.py`** — frozen dataclass output model, one field per computed metric. Field comments are written *for interpretation agents*: definition, unit, reference bands, sector caveats.
+- **`data_collection/build_stock_directory.py` / `data_collection/stock_directory.py`** — batch builder (3 HTTP requests to the Nasdaq screener, one per exchange) writes `data/stock_directory.json`; the runtime module answers ticker lookups from that file with no network. `StockInfo.market_cap` is the one metric input not parseable from a filing. Refreshing the directory has a dedicated skill: `.claude/skills/update-stock-directory`.
 
 ### Docs are part of the design
 
-- `docs/fundamental_metrics.md` — the authority on *what* each metric means, its formula, and interpretation; the pydantic field descriptions distill it.
-- `docs/calculation_notes.md` — *how* `metrics.py` implements it and why.
-- `docs/descoped_multi_period_metrics.md` — the current scope is a **single quarterly report per run**. Metrics needing average balances, prior-period values, or period-over-period changes exist in `metrics.py` but have no `CalculatedMetrics` fields and are not wired in `run_all_calculations.py`. This doc is the checklist (with restore procedure) for when multi-report support lands — follow it rather than re-deriving.
+- `docs/fundamental_metrics.md` — the authority on *what* each metric means, its formula, and interpretation; the model field descriptions and comments distill it.
+- `docs/calculation_notes.md` — *how* `calculations.py` implements it and why.
+- `docs/descoped_multi_period_metrics.md` — the current scope is a **single quarterly report per run**. Metrics needing average balances, prior-period values, or period-over-period changes exist in `calculations.py` but have no `CalculatedValues` fields and are not wired in `calculations_runner.py`. This doc is the checklist (with restore procedure) for when multi-report support lands — follow it rather than re-deriving.
 
 ## Conventions
 
@@ -55,7 +55,7 @@ These span all the modules above and must stay consistent:
 
 - **No abbreviations in identifiers** — spell names out in full, even EBITDA/NOPAT/capex (`earnings_before_interest_taxes_depreciation_and_amortization`). Docstrings note the common short form.
 - **`None` propagation** — every value defaults to `None` (not reported / not computable); every metric function returns `None` when an input is `None`, a denominator is zero, or the metric is not meaningful (e.g. price-to-earnings on negative earnings). This mirrors gaps in real XBRL data.
-- **Zero-if-missing is the caller's decision, not the parser's** — `run_all_calculations.py` treats usually-absent components (lease obligations, preferred equity/dividends, minority interest, short-term investments) as `0.0` when `None`, but *not* dividends, buybacks, or stock issuance (an absent tag is not provably a zero flow).
+- **Zero-if-missing is the caller's decision, not the parser's** — `calculations_runner.py` treats usually-absent components (lease obligations, preferred equity/dividends, minority interest, short-term investments) as `0.0` when `None`, but *not* dividends, buybacks, or stock issuance (an absent tag is not provably a zero flow).
 - **Signs** — capital expenditures, dividends paid, buybacks, and stock issuance are positive magnitudes; `investing_cash_flow` keeps its statement sign (usually negative).
 - **Units** — absolute amounts in the filing's currency (not per-share, except `earnings_per_share`); ratios are decimal fractions (0.25 == 25%); day-count metrics return days. Filings print amounts at a stated scale ("In millions"): the parsing agent records numbers exactly as printed, the extraction agent captures the scale per table (`table_parser.FinancialStatementUnitScale`), and Python multiplies out to whole currency units (`apply_unit_scale`) before merging — so parse results and market cap share units.
-- **Period** — flow values in a parse result are fiscal-year-to-date (the only period a 10-Q's cash flow statement provides — never mix in single-quarter columns); balance-sheet values are as of the period end. True single-quarter flows require differencing consecutive parse results, like the other descoped multi-period inputs. `run_all_calculations.py` annualizes all flows to a run rate (× 4/quarter number, via `annualize_year_to_date_flow_values`) before computing metrics, so the annual reference bands in `calculated_metrics.py` apply; flow/flow ratios are unaffected by the uniform factor.
+- **Period** — flow values in a parse result are fiscal-year-to-date (the only period a 10-Q's cash flow statement provides — never mix in single-quarter columns); balance-sheet values are as of the period end. True single-quarter flows require differencing consecutive parse results, like the other descoped multi-period inputs. `calculations_runner.py` annualizes all flows to a run rate (× 4/quarter number, via `annualize_year_to_date_flow_values`) before computing metrics, so the annual reference bands in `calculated_values.py` apply; flow/flow ratios are unaffected by the uniform factor.

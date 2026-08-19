@@ -1,4 +1,4 @@
-# Calculation Notes: `metrics.py`
+# Calculation Notes: `calculations.py`
 
 Implementation notes for the metric-calculation module. This documents *how* the
 metrics from [fundamental_metrics.md](fundamental_metrics.md) are implemented; that
@@ -9,14 +9,13 @@ sourcing.
 
 ## 1. What was built
 
-- **`metrics.py`** (`src/stock_analyst/`) — pure calculation functions for every metric in the
-  reference doc: all seven pillars plus the four composite scores. One function per
-  metric, plus shared building blocks.
-- **`tests/test_metrics.py`** — 23 tests covering every function against
+- **`calculations.py`** (`src/stock_analyst/analysis/`) — pure calculation functions for every
+  metric in the reference doc: all seven pillars plus the four composite scores. One function
+  per metric, plus shared building blocks.
+- **`tests/test_calculations.py`** — 23 tests covering every function against
   hand-computed expected values.
 - **`pyproject.toml`** — added `pytest` as a dev dependency and pytest configuration
-  (`pythonpath = ["."]` so the flat repo layout imports during collection,
-  `testpaths = ["tests"]`).
+  (`testpaths = ["tests"]`; the src layout imports via the editable install).
 
 Run the tests with:
 
@@ -100,8 +99,8 @@ reference doc. New code in this repo should follow the same rule.
 
 ### Unit scaling and year-to-date annualization
 
-Two deterministic transformations sit between the parsing agent and `metrics.py`,
-both implemented as pure methods on `QuarterlyReportParseResult` (they exist
+Two deterministic transformations sit between the parsing agent and `calculations.py`,
+both implemented as pure methods on `RawQuantitativeData` (they exist
 because the first NVDA run produced a price-to-sales of ~66 million: parsed
 values printed "in millions" were divided into a whole-dollar market cap).
 
@@ -110,8 +109,8 @@ stated scale — a caption near the table title such as "(In millions, except pe
 share data)". The parsing agent records numbers *exactly as printed* (its prompt
 forbids converting), the table-extraction agent captures the caption as a
 structured enum (`table_parser.FinancialStatementUnitScale`: units / thousands /
-millions / billions), and `document_parser.run_parser_on_table` multiplies each
-table's parse result by the enum's factor before results are merged — per table,
+millions / billions), and `quantitative_data_parser._parse_quantitative_values_from_table`
+multiplies each table's parse result by the enum's factor before results are merged — per table,
 because different tables can state different scales. Python does the
 multiplication so the LLM never writes 12-digit numbers. For the caption to be
 visible to the extraction agent, `pdf_reader.load_pdf_with_markdown_tables`
@@ -127,7 +126,7 @@ is left unscaled.
 
 **Annualization** (`annualize_year_to_date_flow_values`). Flow values are
 fiscal-year-to-date (the only period a 10-Q's cash flow statement provides), but
-the reference bands in `calculated_metrics.py` assume annual flows — a Q1 filing's
+the reference bands in `calculated_values.py` assume annual flows — a Q1 filing's
 price-to-earnings would read 4× too high. `run_all_calculations` therefore
 multiplies every flow field by 4 / quarter number before computing any metric:
 
@@ -142,7 +141,7 @@ The factor is uniform across all flows, so flow/flow metrics (margins, coverage,
 payout, cash-flow-to-net-income) are invariant, while flow-vs-stock and
 flow-vs-market-cap metrics become run-rate annual. Balance-sheet fields and
 `weighted_average_diluted_shares` (a period average, not a cumulative flow) are
-untouched. The module-level frozensets in `quarterly_report_parse_result.py`
+untouched. The module-level frozensets in `quantitative_data.py`
 classify every field, and a test asserts they partition the model exactly, so a
 new field cannot be added without deciding its bucket.
 
@@ -153,14 +152,14 @@ Known limitations (documented, not fixed):
   back to `units` and leave those values silently unscaled. A magnitude sanity
   check (e.g. total assets vs. market cap) would catch this and is a candidate
   follow-up.
-- `date_parser.get_quarter_parsing_parameters` maps calendar month → fiscal
+- `end_of_financial_period_parser.get_earnings_period_info` maps calendar month → fiscal
   quarter assuming quarter-ends near calendar quarters; an off-cycle fiscal year
   (e.g. ending June 30) misidentifies the quarter — a pre-existing issue the
   annualization factor inherits. The robust fix is deriving the quarter from the
   "Three/Six/Nine months ended" column label.
 - Annualization assumes a flat run rate; seasonal businesses look distorted
-  early in their fiscal year. The affected `calculated_metrics.py` field
-  descriptions carry a run-rate caveat so interpretation agents read them
+  early in their fiscal year. The affected `calculated_values.py` field
+  comments carry a run-rate caveat so interpretation agents read them
   accordingly.
 
 ### Shared building blocks
@@ -249,7 +248,7 @@ Two metrics failed the audit and were removed:
 
 ## 3. Testing approach
 
-`tests/test_metrics.py` checks every function against hand-computed values from one
+`tests/test_calculations.py` checks every function against hand-computed values from one
 coherent fake company (stated in the test module docstring: revenue 1000, COGS 600,
 net income 120, operating cash flow 300, capital expenditures 80, total assets
 2000, equity 1000, market capitalization 5000, ...), so cross-metric identities
@@ -276,7 +275,7 @@ Beyond the happy path, the tests pin the edge-case semantics:
 The intended flow once the EDGAR layer exists:
 
 ```
-EDGAR companyfacts ──▶ tag-mapping / fallback chains ──▶ named inputs ──▶ metrics.py
+EDGAR companyfacts ──▶ tag-mapping / fallback chains ──▶ named inputs ──▶ calculations.py
                        (reference doc §11)                (revenue, operating_cash_flow, ...)
 stock_directory.json ──▶ market_capitalization ─────────────────┘
 ```

@@ -2,7 +2,7 @@
 one :class:`calculated_values.CalculatedValues` — the interpretation
 counterpart to ``calculations_runner.py``.
 
-The master function calls each ``interpret_<field_name>`` in the model's
+The master function calls each ``interpret_<field_name>`` in the dataclass's
 declaration order, under the same section banners, and collects the resulting
 :class:`interpretations.CalculationInterpretation` objects into a list. Order
 is meaningful for prompt construction, and the completeness test in
